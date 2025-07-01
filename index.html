@@ -164,6 +164,9 @@
         #mapMakerContainer .collapsed-bar.hidden { display: none; }
         @keyframes spin { to { transform: rotate(360deg); } }
         #mapMakerContainer .spinner { border-radius: 50%; width: 1.25rem; height: 1.25rem; border: 2px solid rgba(255, 255, 255, 0.3); border-top-color: #fff; animation: spin 1s linear infinite; }
+        #mapMakerContainer .map-popup { position: absolute; background: #111827; border: 1px solid #3b82f6; border-radius: 8px; padding: 12px; z-index: 100; color: white; width: 250px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); pointer-events: none; }
+        #mapMakerContainer .map-popup h4 { font-weight: bold; color: #60a5fa; margin-bottom: 4px; }
+        #mapMakerContainer .map-popup p { font-size: 14px; margin-bottom: 2px; }
 
         /* --- Print Styles --- */
         @media print {
@@ -251,6 +254,13 @@
                     <h3 class="font-bold text-xl mb-2 text-gray-800 dark:text-white">Sandbox Campaign</h3>
                     <p class="text-gray-600 dark:text-gray-400">An open world full of locations, factions, and emergent narratives. Best for player-driven stories.</p>
                 </button>
+            </div>
+            <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+                <h3 class="text-xl font-bold mb-2 text-center text-gray-800 dark:text-white">Link to Campaign (Optional)</h3>
+                <p class="text-center text-gray-600 dark:text-gray-400 mb-4">Use NPCs, locations, and other data from a master campaign file.</p>
+                <button id="linkCampaignBtn" class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all">Select Campaign File (.json)</button>
+                <input type="file" id="linkCampaignInput" class="hidden" accept=".json">
+                <p id="linkedCampaignInfo" class="text-center text-sm text-green-500 mt-2"></p>
             </div>
         </div>
     </div>
@@ -357,6 +367,7 @@
                 structure: null,
                 components: []
             };
+            let masterCampaignComponents = [];
             let nextId = 1;
 
             // --- DOM ELEMENTS ---
@@ -377,6 +388,10 @@
             const createNewProjectButton = document.getElementById('createNewProjectButton');
             const mapMakerContainer = document.getElementById('mapMakerContainer');
             const backToMenuBtn = document.getElementById('backToMenuBtn');
+            const linkCampaignBtn = document.getElementById('linkCampaignBtn');
+            const linkCampaignInput = document.getElementById('linkCampaignInput');
+            const linkedCampaignInfo = document.getElementById('linkedCampaignInfo');
+
 
             // --- FUNCTIONS ---
             window.showCampaignSetup = () => {
@@ -395,7 +410,7 @@
                 hideAllModals();
                 mapMakerContainer.classList.remove('hidden');
                 if (!mapMakerContainer.dataset.initialized) {
-                    initializeMapMaker();
+                    initializeMapMaker(project, masterCampaignComponents); // Pass the current project to the map maker
                     mapMakerContainer.dataset.initialized = 'true';
                 }
             };
@@ -415,6 +430,7 @@
             const showMainMenu = () => {
                  hideAllModals();
                  project = { type: null, title: 'Untitled Project', pitch: '', genre: '', structure: null, components: [] };
+                 masterCampaignComponents = [];
                  render();
                  mainApp.classList.remove('hidden');
                  mainApp.classList.add('md:grid');
@@ -426,6 +442,7 @@
                 project.pitch = document.getElementById('campaignPitch').value;
                 project.genre = document.getElementById('campaignGenre').value;
                 project.structure = document.getElementById('campaignStructure').value;
+                masterCampaignComponents = [];
                 hideAllModals();
                 mainApp.classList.remove('hidden');
                 mainApp.classList.add('md:grid');
@@ -437,6 +454,7 @@
                 project.type = 'scenario';
                 project.title = 'Untitled Scenario';
                 project.structure = structureType;
+                // masterCampaignComponents is already loaded at this point if a file was selected
                 hideAllModals();
                 mainApp.classList.remove('hidden');
                 mainApp.classList.add('md:grid');
@@ -453,6 +471,8 @@
 
             createNewProjectButton.addEventListener('click', () => {
                 hideAllModals();
+                linkedCampaignInfo.textContent = '';
+                linkCampaignInput.value = '';
                 projectTypeModal.classList.remove('hidden');
                 projectTypeModal.classList.add('flex');
             });
@@ -514,6 +534,7 @@
                         const loadedData = JSON.parse(event.target.result);
                         if (loadedData && typeof loadedData === 'object' && loadedData.hasOwnProperty('components')) {
                             project = loadedData;
+                            masterCampaignComponents = []; // Reset linked campaign on new load
                             nextId = Math.max(0, ...project.components.map(c => c.id)) + 1;
                             hideAllModals();
                             mainApp.classList.remove('hidden');
@@ -530,6 +551,33 @@
                 };
                 reader.readAsText(file);
                 e.target.value = '';
+            });
+
+            linkCampaignBtn.addEventListener('click', () => linkCampaignInput.click());
+
+            linkCampaignInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const loadedData = JSON.parse(event.target.result);
+                        if (loadedData && loadedData.type === 'campaign' && loadedData.hasOwnProperty('components')) {
+                            masterCampaignComponents = loadedData.components;
+                            linkedCampaignInfo.textContent = `Linked to: ${loadedData.title}`;
+                            showModal(`Successfully linked to campaign "${loadedData.title}".`);
+                        } else {
+                            showModal('Invalid campaign file. Please select a valid campaign JSON file.');
+                            masterCampaignComponents = [];
+                            linkedCampaignInfo.textContent = '';
+                        }
+                    } catch (error) {
+                         showModal('Failed to load campaign file. It might be corrupted.');
+                         masterCampaignComponents = [];
+                         linkedCampaignInfo.textContent = '';
+                    }
+                };
+                reader.readAsText(file);
             });
 
             // --- COMPONENT LOGIC ---
@@ -683,7 +731,7 @@
             };
 
             // --- MAP MAKER SCRIPT ---
-            function initializeMapMaker() {
+            function initializeMapMaker(scenarioProject, masterComponents) {
                 // Populate the map maker container
                 mapMakerContainer.innerHTML = `
                 <div id="main-container">
@@ -724,11 +772,12 @@
                                 <!-- Map Maker Controls will be here -->
                                 <div class="control-panel mb-6">
                                     <h3 class="!border-b-0">Drawing Tools</h3>
-                                    <div class="grid grid-cols-4 gap-2 my-2">
+                                    <div class="grid grid-cols-5 gap-2 my-2">
                                         <button id="toolPaintBtn" title="Paint Brush" class="active"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></button>
                                         <button id="toolLineBtn" title="Line"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
                                         <button id="toolRectBtn" title="Rectangle"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg></button>
                                         <button id="toolEllipseBtn" title="Ellipse"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle></svg></button>
+                                        <button id="toolLinkBtn" title="Link Component"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"></path></svg></button>
                                     </div>
                                     <label for="brushSize">Brush/Object Size: <span id="brushSizeValue">1</span></label>
                                     <input type="range" id="brushSize" min="1" max="10" value="1" class="mb-3">
@@ -797,14 +846,14 @@
                 `;
                 
                 // Now run the map maker's logic with the newly created DOM elements
-                runMapMakerLogic(showMainMenu);
+                runMapMakerLogic(showMainMenu, scenarioProject, masterComponents);
             }
 
             // Initial Load
             showMainMenu();
         });
 
-        function runMapMakerLogic(showMainMenu) {
+        function runMapMakerLogic(showMainMenu, scenarioProject, masterCampaignComponents) {
             const canvas = document.getElementById('mapCanvas');
             if (!canvas) {
                 console.error("Map canvas not found! Initialization failed.");
@@ -854,6 +903,7 @@
             const toolLineBtn = document.getElementById('toolLineBtn');
             const toolRectBtn = document.getElementById('toolRectBtn');
             const toolEllipseBtn = document.getElementById('toolEllipseBtn');
+            const toolLinkBtn = document.getElementById('toolLinkBtn');
             const aiAlterPrompt = document.getElementById('aiAlterPrompt');
             const aiAlterMapBtn = document.getElementById('aiAlterMapBtn');
             
@@ -869,7 +919,7 @@
             function generateNewMap(shape, width, height, radius, name = "Untitled Map") { mapGrid = {}; mapName = name; mapScale = 10; mapNameInput.value = mapName; mapScaleInput.value = mapScale; const w = parseInt(width), h = parseInt(height), r_rad = parseInt(radius); switch(shape) { case 'rectangle': for (let row = 0; row < h; row++) { const r_offset = Math.floor(row / 2); for (let col = -r_offset; col < w - r_offset; col++) mapGrid[`${col},${row}`] = true; } break; case 'parallelogram': for (let q = 0; q < w; q++) for (let r = 0; r < h; r++) mapGrid[`${q},${r}`] = true; break; case 'circle': for (let q = -r_rad; q <= r_rad; q++) for (let r = -r_rad; r <= r_rad; r++) if (axialDistance({q:0, r:0}, {q, r}) <= r_rad) mapGrid[`${q},${r}`] = true; break; } layers = []; activeLayerIndex = 0; addNewLayer("Ground"); addNewLayer("Objects"); centerView(); }
             function centerView() { if (Object.keys(mapGrid).length === 0) return; const {mapPixelWidth, mapPixelHeight, mapCenterX, mapCenterY} = getMapPixelBounds(); if(mapPixelWidth === 0 || mapPixelHeight === 0) return; view.zoom = Math.min(canvas.width / mapPixelWidth, canvas.height / mapPixelHeight) * 0.9; view.zoom = Math.max(0.1, Math.min(5, view.zoom)); view.offsetX = (canvas.width / 2) - (mapCenterX * view.zoom); view.offsetY = (canvas.height / 2) - (mapCenterY * view.zoom); drawGrid(); }
             function drawGrid(offscreenCtx = null, bounds = null) { const targetCtx = offscreenCtx || ctx; if (!offscreenCtx) requestAnimationFrame(() => drawFrame(targetCtx, bounds)); else drawFrame(targetCtx, bounds); }
-            function drawFrame(targetCtx, bounds) { targetCtx.save(); if (bounds) { targetCtx.clearRect(0, 0, bounds.width, bounds.height); targetCtx.translate(-bounds.minPxX, -bounds.minPxY); } else { targetCtx.clearRect(0, 0, canvas.width, canvas.height); targetCtx.translate(view.offsetX, view.offsetY); targetCtx.scale(view.zoom, view.zoom); } for (const key in mapGrid) { const [q, r] = key.split(',').map(Number); const { x, y } = hexToPixel(q, r); drawHexOutline(targetCtx, x, y, '#111827'); } layers.forEach(layer => { if (!layer.visible) return; for (const key in layer.data) { const [q, r] = key.split(',').map(Number); const { x, y } = hexToPixel(q, r); const hexData = layer.data[key]; if (hexData.terrain) drawHex(targetCtx, x, y, terrains[hexData.terrain].color); if (hexData.objectKey) { const [mainCat, subCat, objKey] = hexData.objectKey.split('.'); const object = objectCategories[mainCat][subCat][objKey]; drawObject(targetCtx, x, y, object.symbol, hexData.size); } if (hexData.text) drawText(targetCtx, x, y, hexData.text, hexData.textSize, hexData.textColor); } }); targetCtx.restore(); if(isDrawingShape && targetCtx === ctx) ctx.drawImage(previewCanvas, 0, 0); }
+            function drawFrame(targetCtx, bounds) { targetCtx.save(); if (bounds) { targetCtx.clearRect(0, 0, bounds.width, bounds.height); targetCtx.translate(-bounds.minPxX, -bounds.minPxY); } else { targetCtx.clearRect(0, 0, canvas.width, canvas.height); targetCtx.translate(view.offsetX, view.offsetY); targetCtx.scale(view.zoom, view.zoom); } for (const key in mapGrid) { const [q, r] = key.split(',').map(Number); const { x, y } = hexToPixel(q, r); drawHexOutline(targetCtx, x, y, '#111827'); } layers.forEach(layer => { if (!layer.visible) return; for (const key in layer.data) { const [q, r] = key.split(',').map(Number); const { x, y } = hexToPixel(q, r); const hexData = layer.data[key]; if (hexData.terrain) drawHex(targetCtx, x, y, terrains[hexData.terrain].color); if (hexData.objectKey) { const [mainCat, subCat, objKey] = hexData.objectKey.split('.'); const object = objectCategories[mainCat][subCat][objKey]; drawObject(targetCtx, x, y, object.symbol, hexData.size); } if(hexData.linkedComponentId) { drawObject(targetCtx, x, y, '📍', 1.2); } if (hexData.text) drawText(targetCtx, x, y, hexData.text, hexData.textSize, hexData.textColor); } }); targetCtx.restore(); if(isDrawingShape && targetCtx === ctx) ctx.drawImage(previewCanvas, 0, 0); }
             function drawHex(targetCtx, x, y, fillStyle) { targetCtx.beginPath(); for (let i = 0; i < 6; i++) { const angle = Math.PI / 180 * (60 * i + 30); targetCtx.lineTo(x + baseHexSize * Math.cos(angle), y + baseHexSize * Math.sin(angle)); } targetCtx.closePath(); targetCtx.fillStyle = fillStyle; targetCtx.fill(); }
             function drawHexOutline(targetCtx, x, y, strokeStyle) { targetCtx.beginPath(); for (let i = 0; i < 6; i++) { const angle = Math.PI / 180 * (60 * i + 30); targetCtx.lineTo(x + baseHexSize * Math.cos(angle), y + baseHexSize * Math.sin(angle)); } targetCtx.closePath(); targetCtx.strokeStyle = strokeStyle; targetCtx.lineWidth = 1.5 / (targetCtx === ctx ? view.zoom : 1); targetCtx.stroke(); }
             function drawObject(targetCtx, x, y, symbol, size = 1) { targetCtx.font = `${baseHexSize * 1.2 * size}px Arial`; targetCtx.textAlign = 'center'; targetCtx.textBaseline = 'middle'; targetCtx.fillText(symbol, x, y); }
@@ -879,8 +929,8 @@
             function pixelToHex(x, y) { const worldX = (x - view.offsetX) / view.zoom; const worldY = (y - view.offsetY) / view.zoom; const q_frac = (Math.sqrt(3) / 3 * worldX - 1 / 3 * worldY) / baseHexSize; const r_frac = (2 / 3 * worldY) / baseHexSize; return axialRound(q_frac, r_frac); }
             function axialRound(q_frac, r_frac) { const s_frac = -q_frac - r_frac; let q = Math.round(q_frac), r = Math.round(r_frac), s = Math.round(s_frac); const q_diff = Math.abs(q - q_frac), r_diff = Math.abs(r - r_frac), s_diff = Math.abs(s - s_frac); if (q_diff > r_diff && q_diff > s_diff) q = -r - s; else if (r_diff > s_diff) r = -q - s; return { q, r }; }
             function applyTool(e, endHex) { if (!layers.length) return; const activeLayer = layers[activeLayerIndex]; const affectedHexes = getHexesForTool(e, endHex); affectedHexes.forEach(hex => { const key = `${hex.q},${hex.r}`; if (mapGrid[key]) { if (!activeLayer.data[key]) activeLayer.data[key] = {}; if (['paint', 'line', 'rectangle', 'ellipse'].includes(currentTool)) activeLayer.data[key] = { terrain: selectedTerrain }; else if (currentTool === 'place') { if (hex.q === affectedHexes[0].q && hex.r === affectedHexes[0].r) activeLayer.data[key] = { objectKey: selectedObjectKey, size: brushSize }; } else if (currentTool === 'text') { if (hex.q === affectedHexes[0].q && hex.r === affectedHexes[0].r) activeLayer.data[key] = { text: textInput.value, textSize: fontSizeInput.value, textColor: fontColorInput.value }; } else if (currentTool === 'eraser' && activeLayer.data[key]) delete activeLayer.data[key]; } }); drawGrid(); }
-            function getHexesForTool(e, endHex = null) { const rect = canvas.getBoundingClientRect(); const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top; const centerHex = endHex || pixelToHex(mouseX, mouseY); if (['paint', 'eraser', 'place'].includes(currentTool)) return getHexesInBrush(centerHex); if (currentTool === 'line') return getHexesForLine(shapeStartHex, centerHex); if (currentTool === 'rectangle') return getHexesForRectangle(shapeStartHex, centerHex); if (currentTool === 'ellipse') return getHexesForEllipse(shapeStartHex, centerHex); if (currentTool === 'text') return [centerHex]; return []; }
-            function getHexesInBrush(centerHex) { const results = []; const range = brushSize - 1; for (let q = -range; q <= range; q++) for (let r = Math.max(-range, -q - range); r <= Math.min(range, -q + range); r++) results.push({ q: centerHex.q + q, r: centerHex.r + r }); return results; }
+            function getHexesForTool(e, endHex = null) { const rect = canvas.getBoundingClientRect(); const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top; const centerHex = endHex || pixelToHex(mouseX, mouseY); if (['paint', 'eraser', 'place', 'link'].includes(currentTool)) return getHexesInBrush(centerHex); if (currentTool === 'line') return getHexesForLine(shapeStartHex, centerHex); if (currentTool === 'rectangle') return getHexesForRectangle(shapeStartHex, centerHex); if (currentTool === 'ellipse') return getHexesForEllipse(shapeStartHex, centerHex); if (currentTool === 'text') return [centerHex]; return []; }
+            function getHexesInBrush(centerHex) { const results = []; const range = currentTool === 'link' ? 1 : brushSize - 1; for (let q = -range; q <= range; q++) for (let r = Math.max(-range, -q - range); r <= Math.min(range, -q + range); r++) results.push({ q: centerHex.q + q, r: centerHex.r + r }); return results; }
             function cubeLerp(a, b, t) { return { q: a.q * (1 - t) + b.q * t, r: a.r * (1 - t) + b.r * t }; }
             function getHexesForLine(start, end) { if(!start || !end) return []; const n = axialDistance(start, end); const results = []; for (let i = 0; i <= n; i++) { const cubeCoords = cubeLerp(start, end, (1.0 / n) * i); results.push(axialRound(cubeCoords.q, cubeCoords.r)); } return results; }
             function getHexesForRectangle(start, end) { if(!start || !end) return []; const results = []; const q_min = Math.min(start.q, end.q), q_max = Math.max(start.q, end.q), r_min = Math.min(start.r, end.r), r_max = Math.max(start.r, end.r); for (let q = q_min; q <= q_max; q++) for (let r = r_min; r <= r_max; r++) results.push({ q, r }); return results; }
@@ -895,11 +945,13 @@
             function saveAsPNG() { if (mapName.trim() === '' || mapName.toLowerCase().includes('untitled')) { showModal("Please enter a unique name for your map before saving."); return; } const { mapPixelWidth, mapPixelHeight, minPxX, minPxY } = getMapPixelBounds(); const offscreenCanvas = document.createElement('canvas'); offscreenCanvas.width = mapPixelWidth; offscreenCanvas.height = mapPixelHeight; const offscreenCtx = offscreenCanvas.getContext('2d'); drawGrid(offscreenCtx, { width: mapPixelWidth, height: mapPixelHeight, minPxX, minPxY }); const dataUrl = offscreenCanvas.toDataURL('image/png'); const link = document.createElement('a'); link.download = `${getSafeFilename(mapName)}.png`; link.href = dataUrl; link.click(); }
             function saveAsJSON() { if (mapName.trim() === '' || mapName.toLowerCase().includes('untitled')) { showModal("Please enter a unique name for your map before saving."); return; } const mapData = { name: mapName, scale: mapScale, grid: mapGrid, layers: layers }; const jsonString = JSON.stringify(mapData, null, 2); const blob = new Blob([jsonString], {type: "application/json"}); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.download = `${getSafeFilename(mapName)}.json`; link.href = url; link.click(); URL.revokeObjectURL(url); }
             function loadFromJSON(e) { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (event) => { try { const loadedData = JSON.parse(event.target.result); if (loadedData && loadedData.grid && Array.isArray(loadedData.layers)) { mapGrid = loadedData.grid; layers = loadedData.layers; mapName = loadedData.name || 'Untitled Loaded Map'; mapScale = loadedData.scale || 10; mapNameInput.value = mapName; mapScaleInput.value = mapScale; activeLayerIndex = 0; renderLayers(); centerView(); } else throw new Error("Invalid map file format."); } catch (err) { showModal("Error: Could not load map. File may be corrupt or in the wrong format."); console.error(err); } }; reader.readAsText(file); e.target.value = ''; }
-            function addEventListeners() { window.addEventListener('resize', resizeCanvas); canvas.addEventListener('contextmenu', e => e.preventDefault()); canvas.addEventListener('mousedown', e => { if (e.button === 2) { isPanning = true; panStart = { x: e.clientX, y: e.clientY }; canvas.classList.add('panning'); return; } if (e.button === 0) { const isShapeTool = ['line', 'rectangle', 'ellipse'].includes(currentTool); if (isShapeTool) { isDrawingShape = true; shapeStartHex = pixelToHex(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); } else if (currentTool === 'paint' || currentTool === 'eraser') { isPainting = true; applyTool(e); } else applyTool(e); } }); canvas.addEventListener('mousemove', e => { if (isPanning) { view.offsetX += e.clientX - panStart.x; view.offsetY += e.clientY - panStart.y; panStart = { x: e.clientX, y: e.clientY }; drawGrid(); } else if (isDrawingShape) { previewCtx.clearRect(0,0, previewCanvas.width, previewCanvas.height); const currentHex = pixelToHex(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); const shapeHexes = getHexesForTool(e, currentHex); previewCtx.save(); previewCtx.translate(view.offsetX, view.offsetY); previewCtx.scale(view.zoom, view.zoom); shapeHexes.forEach(hex => { const {x, y} = hexToPixel(hex.q, hex.r); drawHex(previewCtx, x, y, 'rgba(100, 150, 255, 0.5)'); }); previewCtx.restore(); drawGrid(); } else if (isPainting) applyTool(e); }); canvas.addEventListener('mouseup', e => { if(isDrawingShape && e.button === 0) { const endHex = pixelToHex(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); applyTool(e, endHex); isDrawingShape = false; shapeStartHex = null; previewCtx.clearRect(0,0, previewCanvas.width, previewCanvas.height); drawGrid(); } isPainting = false; isPanning = false; canvas.classList.remove('panning'); }); canvas.addEventListener('mouseleave', () => { isPanning = false; isPainting = false; isDrawingShape = false; canvas.classList.remove('panning'); }); mapNameInput.addEventListener('input', (e) => { mapName = e.target.value; }); mapScaleInput.addEventListener('input', (e) => { mapScale = parseInt(e.target.value) || 10; }); brushSizeSlider.addEventListener('input', e => { brushSize = parseInt(e.target.value); brushSizeValue.textContent = brushSize; }); zoomInBtn.addEventListener('click', () => { view.zoom = Math.min(5, view.zoom * 1.25); drawGrid(); }); zoomOutBtn.addEventListener('click', () => { view.zoom = Math.max(0.1, view.zoom / 1.25); drawGrid(); }); eraserBtn.addEventListener('click', () => { currentTool = 'eraser'; updateActiveSwatches(); }); toolPaintBtn.addEventListener('click', () => { currentTool = 'paint'; updateActiveSwatches(); }); toolLineBtn.addEventListener('click', () => { currentTool = 'line'; updateActiveSwatches(); }); toolRectBtn.addEventListener('click', () => { currentTool = 'rectangle'; updateActiveSwatches(); }); toolEllipseBtn.addEventListener('click', () => { currentTool = 'ellipse'; updateActiveSwatches(); }); resetViewBtn.addEventListener('click', centerView); addLayerBtn.addEventListener('click', () => addNewLayer()); deleteLayerBtn.addEventListener('click', deleteActiveLayer); textHeader.addEventListener('click', () => { currentTool = 'text'; updateActiveSwatches(); }); mapShapeSelect.addEventListener('change', () => { const isCircle = mapShapeSelect.value === 'circle'; dimensionInputs.children[0].classList.toggle('hidden', isCircle); dimensionInputs.children[1].classList.toggle('hidden', !isCircle); }); generateMapBtn.addEventListener('click', () => { showModal("Generate a new map? This will delete all layers and current work.", () => { generateNewMap(mapShapeSelect.value, mapWidthInput.value, mapHeightInput.value, mapRadiusInput.value, 'Untitled Map'); }); }); fileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); fileDropdownMenu.classList.toggle('hidden'); }); window.addEventListener('click', (e) => { if (!fileMenuBtn.contains(e.target) && !fileDropdownMenu.contains(e.target)) fileDropdownMenu.classList.add('hidden'); }); savePngBtn.addEventListener('click', saveAsPNG); saveJsonBtn.addEventListener('click', saveAsJSON); loadJsonBtn.addEventListener('click', () => loadJsonInput.click()); loadJsonInput.addEventListener('change', loadFromJSON); accordionHeaders.forEach((header, index) => { header.addEventListener('click', () => { const isCurrentlyOpen = !accordionContents[index].classList.contains('hidden'); accordionContents.forEach(content => content.classList.add('hidden')); accordionHeaders.forEach(h => h.classList.add('collapsed')); if (!isCurrentlyOpen) { accordionContents[index].classList.remove('hidden'); header.classList.remove('collapsed'); } }); }); collapseBtn.addEventListener('click', () => togglePanel(true)); collapsedBar.addEventListener('click', () => togglePanel(false)); aiAlterMapBtn.addEventListener('click', handleAiMapAlteration); backToScenarioGuideBtn.addEventListener('click', showMainMenu); }
+            function addEventListeners() { window.addEventListener('resize', resizeCanvas); canvas.addEventListener('contextmenu', e => e.preventDefault()); canvas.addEventListener('mousedown', e => { if (e.button === 2) { isPanning = true; panStart = { x: e.clientX, y: e.clientY }; canvas.classList.add('panning'); return; } if (e.button === 0) { const rect = canvas.getBoundingClientRect(); const mouseX = e.clientX - rect.left; const mouseY = e.clientY - rect.top; const clickedHex = pixelToHex(mouseX, mouseY); const key = `${clickedHex.q},${clickedHex.r}`; let linkedComponentId = null; for(const layer of layers) { if(layer.data[key] && layer.data[key].linkedComponentId) { linkedComponentId = layer.data[key].linkedComponentId; break; } } if(linkedComponentId) { showComponentPopup(mouseX, mouseY, linkedComponentId); return; } const isShapeTool = ['line', 'rectangle', 'ellipse'].includes(currentTool); if (isShapeTool) { isDrawingShape = true; shapeStartHex = pixelToHex(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); } else if (currentTool === 'paint' || currentTool === 'eraser') { isPainting = true; applyTool(e); } else if (currentTool === 'link') { showLinkModal(clickedHex); } else applyTool(e); } }); canvas.addEventListener('mousemove', e => { if (isPanning) { view.offsetX += e.clientX - panStart.x; view.offsetY += e.clientY - panStart.y; panStart = { x: e.clientX, y: e.clientY }; drawGrid(); } else if (isDrawingShape) { previewCtx.clearRect(0,0, previewCanvas.width, previewCanvas.height); const currentHex = pixelToHex(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); const shapeHexes = getHexesForTool(e, currentHex); previewCtx.save(); previewCtx.translate(view.offsetX, view.offsetY); previewCtx.scale(view.zoom, view.zoom); shapeHexes.forEach(hex => { const {x, y} = hexToPixel(hex.q, hex.r); drawHex(previewCtx, x, y, 'rgba(100, 150, 255, 0.5)'); }); previewCtx.restore(); drawGrid(); } else if (isPainting) applyTool(e); }); canvas.addEventListener('mouseup', e => { if(isDrawingShape && e.button === 0) { const endHex = pixelToHex(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top); applyTool(e, endHex); isDrawingShape = false; shapeStartHex = null; previewCtx.clearRect(0,0, previewCanvas.width, previewCanvas.height); drawGrid(); } isPainting = false; isPanning = false; canvas.classList.remove('panning'); }); canvas.addEventListener('mouseleave', () => { isPanning = false; isPainting = false; isDrawingShape = false; canvas.classList.remove('panning'); const popup = document.getElementById('map-popup'); if(popup) popup.remove(); }); mapNameInput.addEventListener('input', (e) => { mapName = e.target.value; }); mapScaleInput.addEventListener('input', (e) => { mapScale = parseInt(e.target.value) || 10; }); brushSizeSlider.addEventListener('input', e => { brushSize = parseInt(e.target.value); brushSizeValue.textContent = brushSize; }); zoomInBtn.addEventListener('click', () => { view.zoom = Math.min(5, view.zoom * 1.25); drawGrid(); }); zoomOutBtn.addEventListener('click', () => { view.zoom = Math.max(0.1, view.zoom / 1.25); drawGrid(); }); eraserBtn.addEventListener('click', () => { currentTool = 'eraser'; updateActiveSwatches(); }); toolPaintBtn.addEventListener('click', () => { currentTool = 'paint'; updateActiveSwatches(); }); toolLineBtn.addEventListener('click', () => { currentTool = 'line'; updateActiveSwatches(); }); toolRectBtn.addEventListener('click', () => { currentTool = 'rectangle'; updateActiveSwatches(); }); toolEllipseBtn.addEventListener('click', () => { currentTool = 'ellipse'; updateActiveSwatches(); }); toolLinkBtn.addEventListener('click', () => { currentTool = 'link'; updateActiveSwatches(); }); resetViewBtn.addEventListener('click', centerView); addLayerBtn.addEventListener('click', () => addNewLayer()); deleteLayerBtn.addEventListener('click', deleteActiveLayer); textHeader.addEventListener('click', () => { currentTool = 'text'; updateActiveSwatches(); }); mapShapeSelect.addEventListener('change', () => { const isCircle = mapShapeSelect.value === 'circle'; dimensionInputs.children[0].classList.toggle('hidden', isCircle); dimensionInputs.children[1].classList.toggle('hidden', !isCircle); }); generateMapBtn.addEventListener('click', () => { showModal("Generate a new map? This will delete all layers and current work.", () => { generateNewMap(mapShapeSelect.value, mapWidthInput.value, mapHeightInput.value, mapRadiusInput.value, 'Untitled Map'); }); }); fileMenuBtn.addEventListener('click', (e) => { e.stopPropagation(); fileDropdownMenu.classList.toggle('hidden'); }); window.addEventListener('click', (e) => { if (!fileMenuBtn.contains(e.target) && !fileDropdownMenu.contains(e.target)) fileDropdownMenu.classList.add('hidden'); }); savePngBtn.addEventListener('click', saveAsPNG); saveJsonBtn.addEventListener('click', saveAsJSON); loadJsonBtn.addEventListener('click', () => loadJsonInput.click()); loadJsonInput.addEventListener('change', loadFromJSON); accordionHeaders.forEach((header, index) => { header.addEventListener('click', () => { const isCurrentlyOpen = !accordionContents[index].classList.contains('hidden'); accordionContents.forEach(content => content.classList.add('hidden')); accordionHeaders.forEach(h => h.classList.add('collapsed')); if (!isCurrentlyOpen) { accordionContents[index].classList.remove('hidden'); header.classList.remove('collapsed'); } }); }); collapseBtn.addEventListener('click', () => togglePanel(true)); collapsedBar.addEventListener('click', () => togglePanel(false)); aiAlterMapBtn.addEventListener('click', handleAiMapAlteration); backToScenarioGuideBtn.addEventListener('click', showMainMenu); }
             async function handleAiMapAlteration() { const promptText = aiAlterPrompt.value; if (!promptText) { showModal("Please describe the changes you want to make."); return; } setButtonLoading(aiAlterMapBtn, true); const groundLayer = layers.find(l => l.name === 'Ground') || layers[0]; let minQ = Infinity, maxQ = -Infinity, minR = Infinity, maxR = -Infinity; Object.keys(mapGrid).forEach(key => { const [q, r] = key.split(',').map(Number); minQ = Math.min(minQ, q); maxQ = Math.max(maxQ, q); minR = Math.min(minR, r); maxR = Math.max(maxR, r); }); const terrainList = Object.keys(terrains).join(', '); const fullPrompt = `You are an expert cartographer...`; const payload = { contents: [{ role: "user", parts: [{ text: fullPrompt }] }] }; const apiKey = ""; const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`; try { const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!response.ok) { const errorBody = await response.text(); console.error("API Error Body:", errorBody); throw new Error(`API request failed with status ${response.status}`); } const result = await response.json(); if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts) { const rawText = result.candidates[0].content.parts[0].text; const cleanedText = rawText.replace(/```json|```/g, '').trim(); const changes = JSON.parse(cleanedText); changes.forEach(item => { const key = `${item.q},${item.r}`; if(mapGrid[key] && terrains[item.terrain]) { if (!groundLayer.data[key]) groundLayer.data[key] = {}; groundLayer.data[key].terrain = item.terrain; } }); drawGrid(); } else throw new Error("Invalid response structure from API."); } catch (error) { console.error("AI Map Alteration Error:", error); showModal("Sorry, there was an error altering the map. Please try a different prompt."); } finally { setButtonLoading(aiAlterMapBtn, false); } }
             function populateSelectors() { terrainSelector.innerHTML = ''; Object.keys(terrains).forEach(key => { const itemContainer = document.createElement('div'); itemContainer.className = 'item-container'; itemContainer.dataset.terrain = key; itemContainer.addEventListener('click', () => { currentTool = 'paint'; selectedTerrain = key; updateActiveSwatches(); }); itemContainer.innerHTML = `<div class="texture-swatch" style="background-color: ${terrains[key].color};"></div><div class="item-label">${terrains[key].name}</div>`; terrainSelector.appendChild(itemContainer); }); objectSelector.innerHTML = ''; Object.keys(objectCategories).forEach(mainCatKey => { const mainCat = objectCategories[mainCatKey]; Object.keys(mainCat).forEach(subCatKey => { const subCat = mainCat[subCatKey]; Object.keys(subCat).forEach(objKey => { const item = subCat[objKey]; const fullKey = `${mainCatKey}.${subCatKey}.${objKey}`; const itemContainer = document.createElement('div'); itemContainer.className = 'item-container'; itemContainer.dataset.objectKey = fullKey; itemContainer.addEventListener('click', () => { currentTool = 'place'; selectedObjectKey = fullKey; updateActiveSwatches(); }); itemContainer.innerHTML = `<div class="object-swatch">${item.symbol}</div><div class="item-label">${item.name}</div>`; objectSelector.appendChild(itemContainer); }); }); }); updateActiveSwatches(); }
-            function updateActiveSwatches() { document.querySelectorAll('#mapMakerContainer .control-panel.active, #mapMakerContainer button.active, #mapMakerContainer .item-container.active').forEach(el => el.classList.remove('active')); canvas.classList.remove('erasing'); if (textToolPanel) textToolPanel.classList.remove('active'); const toolButtons = { paint: toolPaintBtn, line: toolLineBtn, rectangle: toolRectBtn, ellipse: toolEllipseBtn, eraser: eraserBtn }; if(toolButtons[currentTool]) toolButtons[currentTool].classList.add('active'); if (currentTool === 'place') document.querySelector(`.item-container[data-object-key="${selectedObjectKey}"]`)?.classList.add('active'); else if (currentTool === 'text') textToolPanel.classList.add('active'); if(['paint', 'line', 'rectangle', 'ellipse'].includes(currentTool)) document.querySelector(`.item-container[data-terrain="${selectedTerrain}"]`)?.classList.add('active'); }
+            function updateActiveSwatches() { document.querySelectorAll('#mapMakerContainer .control-panel.active, #mapMakerContainer button.active, #mapMakerContainer .item-container.active').forEach(el => el.classList.remove('active')); canvas.classList.remove('erasing'); if (textToolPanel) textToolPanel.classList.remove('active'); const toolButtons = { paint: toolPaintBtn, line: toolLineBtn, rectangle: toolRectBtn, ellipse: toolEllipseBtn, eraser: eraserBtn, link: toolLinkBtn }; if(toolButtons[currentTool]) toolButtons[currentTool].classList.add('active'); if (currentTool === 'place') document.querySelector(`.item-container[data-object-key="${selectedObjectKey}"]`)?.classList.add('active'); else if (currentTool === 'text') textToolPanel.classList.add('active'); if(['paint', 'line', 'rectangle', 'ellipse'].includes(currentTool)) document.querySelector(`.item-container[data-terrain="${selectedTerrain}"]`)?.classList.add('active'); }
             function setButtonLoading(button, isLoading) { if(isLoading) { button.disabled = true; button.innerHTML = '<div class="spinner"></div>'; } else { button.disabled = false; button.innerHTML = button.dataset.originalText || ''; } }
+            function showLinkModal(hex) { const key = `${hex.q},${hex.r}`; const allComponents = (scenarioProject.components || []).concat(masterCampaignComponents.map(c => ({...c, source: 'Campaign'}))); if (allComponents.length === 0) { showModal("No components available to link. Add components in the Scenario Guide or link a Campaign with components."); return; } const options = allComponents.map(c => `<option value="${c.id}">${c.data.name} (${c.source === 'Campaign' ? 'Campaign' : c.type.replace('_', ' ')})</option>`).join(''); const modalHTML = `<div class="modal-backdrop fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"><div class="bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm text-white"><h3 class="text-lg font-bold mb-4">Link Component to Hex (${key})</h3><select id="linkComponentSelect" class="w-full p-2 mb-4 bg-gray-700 rounded">${options}</select><div class="flex justify-end gap-4"><button id="modalCancel" class="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 transition">Cancel</button><button id="modalConfirm" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-500 transition">Link</button></div></div></div>`; document.body.insertAdjacentHTML('beforeend', modalHTML); const modal = document.querySelector('.modal-backdrop'); const cancelBtn = document.getElementById('modalCancel'); const confirmBtn = document.getElementById('modalConfirm'); const selectEl = document.getElementById('linkComponentSelect'); const removeModal = () => document.body.removeChild(modal); cancelBtn.onclick = removeModal; confirmBtn.onclick = () => { const componentId = parseInt(selectEl.value); const layer = layers[activeLayerIndex]; if (!layer.data[key]) layer.data[key] = {}; layer.data[key].linkedComponentId = componentId; drawGrid(); removeModal(); }; }
+            function showComponentPopup(mouseX, mouseY, componentId) { const existingPopup = document.getElementById('map-popup'); if(existingPopup) existingPopup.remove(); const allComponents = (scenarioProject.components || []).concat(masterCampaignComponents); const component = allComponents.find(c => c.id === componentId); if (!component) return; const popup = document.createElement('div'); popup.id = 'map-popup'; popup.className = 'map-popup'; let content = `<h4>${component.data.name}</h4>`; const details = component.data.description || component.data.summary || component.data.goal || ''; content += `<p>${details.substring(0, 100)}${details.length > 100 ? '...' : ''}</p>`; popup.innerHTML = content; document.getElementById('canvas-container').appendChild(popup); popup.style.left = `${mouseX + 15}px`; popup.style.top = `${mouseY + 15}px`; }
             
             initialize();
         }
