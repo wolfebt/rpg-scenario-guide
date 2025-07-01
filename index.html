@@ -15,7 +15,7 @@
         .prose-style {
             font-family: 'Lora', serif;
         }
-        .gm-mode .editable {
+        .gm-mode .editable, .gm-mode .editable-in-place {
             display: none;
         }
         .writer-mode .viewable {
@@ -72,6 +72,24 @@
             padding: 1.5rem;
             border-radius: 0.5rem;
         }
+        .editable-tag {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .editable-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .editable-title {
+             cursor: pointer;
+             border-bottom: 2px dashed transparent;
+        }
+        .editable-title:hover {
+             border-bottom: 2px dashed #9ca3af;
+        }
+        #projectHeader {
+            position: relative;
+        }
 
         /* Print-specific styles */
         @media print {
@@ -82,7 +100,7 @@
             #app {
                 display: block !important; /* Override grid for printing */
             }
-            aside, #projectTypeModal, #campaignSetupModal, #scenarioSetupModal, #mobileMessage, .editable, .no-print {
+            aside, #projectTypeModal, #campaignSetupModal, #scenarioSetupModal, #mobileMessage, .editable, .no-print, .editable-in-place {
                 display: none !important;
             }
             main {
@@ -110,7 +128,7 @@
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-200 transition-colors duration-300 writer-mode">
 
     <!-- Initial Project Type Selection Modal -->
-    <div id="projectTypeModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+    <div id="projectTypeModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-2xl w-full transform transition-all scale-100 opacity-100">
             <h2 class="text-3xl font-bold mb-4 text-center text-gray-800 dark:text-white">What are you creating?</h2>
             <p class="text-center text-gray-600 dark:text-gray-400 mb-8">Choose a project type to get started.</p>
@@ -149,9 +167,23 @@
                         </select>
                     </div>
                     <div>
+                        <label for="campaignTone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tone</label>
+                        <select id="campaignTone" class="mt-1 block w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option>Lighthearted</option><option>Gritty</option><option>Epic</option><option>Bleak</option><option>Mysterious</option><option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
                         <label for="campaignStructure" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Primary Structure</label>
                         <select id="campaignStructure" class="mt-1 block w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                             <option>Linear</option><option>Episodic</option><option>Sandbox</option><option>Hybrid</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="campaignScope" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Scope</label>
+                        <select id="campaignScope" class="mt-1 block w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option>One-Shot (1-2 Sessions)</option><option>Mini-Campaign (3-10 Sessions)</option><option>Long Campaign (10-50 Sessions)</option><option>Epic Campaign (50+ Sessions)</option>
                         </select>
                     </div>
                 </div>
@@ -165,23 +197,40 @@
     <!-- Scenario Setup Modal -->
     <div id="scenarioSetupModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-2xl w-full transform transition-all">
-             <h2 class="text-3xl font-bold mb-4 text-center text-gray-800 dark:text-white">Create Your Scenario</h2>
-            <p class="text-center text-gray-600 dark:text-gray-400 mb-8">Start by choosing a foundational structure.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <button onclick="startScenario('Linear')" class="structure-card text-left p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:ring-2 hover:ring-blue-500 hover:bg-blue-50 dark:hover:bg-gray-600 transition-all">
-                    <h3 class="font-bold text-xl mb-2 text-gray-800 dark:text-white">Linear Adventure</h3>
-                    <p class="text-gray-600 dark:text-gray-400">A sequential series of scenes or encounters. Ideal for focused, story-driven one-shots.</p>
-                </button>
-                <button onclick="startScenario('Sandbox')" class="structure-card text-left p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:ring-2 hover:ring-green-500 hover:bg-green-50 dark:hover:bg-gray-600 transition-all">
-                    <h3 class="font-bold text-xl mb-2 text-gray-800 dark:text-white">Sandbox Campaign</h3>
-                    <p class="text-gray-600 dark:text-gray-400">An open world full of locations, factions, and emergent narratives. Best for player-driven stories.</p>
-                </button>
+             <h2 class="text-3xl font-bold mb-2 text-center text-gray-800 dark:text-white">Create Your New Scenario</h2>
+            <p class="text-center text-gray-600 dark:text-gray-400 mb-8">Define the core identity of your one-shot or short adventure.</p>
+            <div class="space-y-4">
+                 <div>
+                    <label for="scenarioTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Scenario Title</label>
+                    <input type="text" id="scenarioTitle" placeholder="The Haunted Hills of Silverwood" class="mt-1 block w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div>
+                    <label for="scenarioSynopsis" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Synopsis / Overview</label>
+                    <textarea id="scenarioSynopsis" rows="3" placeholder="A brief summary of the adventure's plot, goals, and themes." class="mt-1 block w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 prose-style"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="scenarioGenre" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Genre</label>
+                        <select id="scenarioGenre" class="mt-1 block w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option>Dungeon Crawl</option><option>Mystery</option><option>Intrigue</option><option>Wilderness Survival</option><option>Horror</option><option>Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="scenarioStructure" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Primary Structure</label>
+                        <select id="scenarioStructure" class="mt-1 block w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option>Linear</option><option>Sandbox</option><option>Point Crawl (Hybrid)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 text-center">
+                <button onclick="startScenario()" class="w-full md:w-auto px-8 py-3 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all text-lg">Start Building</button>
             </div>
         </div>
     </div>
 
     <!-- Main App Layout -->
-    <div id="app" class="md:grid md:grid-cols-[280px_1fr] h-screen">
+    <div id="app" class="hidden md:grid md:grid-cols-[280px_1fr] h-screen">
         <!-- Sidebar -->
         <aside class="bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col p-4">
             <!-- Title Row -->
@@ -219,6 +268,10 @@
                     <svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6H3"/><path d="M21 12H3"/><path d="M21 18H3"/></svg>
                     <span>Story Arc</span>
                 </button>
+                 <button onclick="addComponent('adventure')" class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m13.29 13.29-4.6 4.6a2 2 0 1 0 2.83 2.83l4.6-4.6a2 2 0 0 0 0-2.83l-4.6-4.6a2 2 0 1 0-2.83 2.83z"/><path d="M10.59 10.59 7.76 7.76"/><path d="m16.24 7.76-2.83 2.83"/></svg>
+                    <span>Adventure/Quest</span>
+                </button>
                 <button onclick="addComponent('npc')" class="w-full flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                     <svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="4"/><path d="M18 11a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z"/></svg>
                     <span>NPC</span>
@@ -245,6 +298,8 @@
                 </button>
             </nav>
 
+            <div id="sidebarExtras" class="no-print mt-4"></div>
+
             <div class="mt-auto no-print">
                 <div class="flex items-center justify-between p-2 rounded-md bg-gray-100 dark:bg-gray-700">
                     <span class="font-semibold text-sm">Writer Mode</span>
@@ -268,8 +323,9 @@
         </main>
     </div>
 
-    <!-- Hidden file input for loading -->
+    <!-- Hidden file inputs -->
     <input type="file" id="loadFileInput" class="hidden" accept=".json">
+    <input type="file" id="linkCampaignFileInput" class="hidden" accept=".json">
 
     <!-- Mobile view message -->
     <div id="mobileMessage" class="md:hidden flex flex-col items-center justify-center h-screen text-center p-4">
@@ -282,15 +338,17 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- STATE MANAGEMENT ---
-            let project = {
-                type: null, // 'campaign' or 'scenario'
-                title: 'Untitled Project',
-                pitch: '',
-                genre: '',
-                structure: null,
-                components: []
-            };
+            let project = {};
             let nextId = 1;
+
+            const projectOptions = {
+                campaignGenre: ['Heroic Fantasy', 'Investigative Horror', 'Dystopian Intrigue', 'Sci-Fi Opera', 'Political Thriller', 'Other'],
+                campaignTone: ['Lighthearted', 'Gritty', 'Epic', 'Bleak', 'Mysterious', 'Other'],
+                campaignStructure: ['Linear', 'Episodic', 'Sandbox', 'Hybrid'],
+                campaignScope: ['One-Shot (1-2 Sessions)', 'Mini-Campaign (3-10 Sessions)', 'Long Campaign (10-50 Sessions)', 'Epic Campaign (50+ Sessions)'],
+                scenarioGenre: ['Dungeon Crawl', 'Mystery', 'Intrigue', 'Wilderness Survival', 'Horror', 'Other'],
+                scenarioStructure: ['Linear', 'Sandbox', 'Point Crawl (Hybrid)']
+            };
 
             // --- DOM ELEMENTS ---
             const projectTypeModal = document.getElementById('projectTypeModal');
@@ -308,73 +366,82 @@
             const loadLocalButton = document.getElementById('loadLocalButton');
             const loadFileInput = document.getElementById('loadFileInput');
             const createNewProjectButton = document.getElementById('createNewProjectButton');
+            const linkCampaignFileInput = document.getElementById('linkCampaignFileInput');
+            const sidebarExtras = document.getElementById('sidebarExtras');
+
 
             // --- FUNCTIONS ---
+
+            const resetProject = () => {
+                project = {
+                    type: null, title: 'Untitled Project', pitch: '', synopsis: '',
+                    genre: '', tone: '', scope: '', structure: '', components: [],
+                    linkedCampaign: null
+                };
+                nextId = 1;
+                document.getElementById('scenarioTitle').value = '';
+                document.getElementById('scenarioSynopsis').value = '';
+            };
 
             window.showCampaignSetup = () => {
                 projectTypeModal.classList.add('hidden');
                 projectTypeModal.classList.remove('flex');
                 campaignSetupModal.classList.remove('hidden');
+                campaignSetupModal.classList.add('flex');
             };
 
             window.showScenarioSetup = () => {
                 projectTypeModal.classList.add('hidden');
                 projectTypeModal.classList.remove('flex');
                 scenarioSetupModal.classList.remove('hidden');
+                scenarioSetupModal.classList.add('flex');
             };
 
             const hideAllModals = () => {
                 projectTypeModal.classList.add('hidden');
                 projectTypeModal.classList.remove('flex');
                 campaignSetupModal.classList.add('hidden');
+                campaignSetupModal.classList.remove('flex');
                 scenarioSetupModal.classList.add('hidden');
+                scenarioSetupModal.classList.remove('flex');
                 mainApp.classList.remove('hidden');
             };
 
             window.startCampaign = () => {
+                resetProject();
                 project.type = 'campaign';
                 project.title = document.getElementById('campaignTitle').value || 'Untitled Campaign';
                 project.pitch = document.getElementById('campaignPitch').value;
                 project.genre = document.getElementById('campaignGenre').value;
+                project.tone = document.getElementById('campaignTone').value;
+                project.scope = document.getElementById('campaignScope').value;
                 project.structure = document.getElementById('campaignStructure').value;
                 hideAllModals();
-                renderProjectHeader();
-                render();
+                renderAll();
             };
             
-            window.startScenario = (structureType) => {
+            window.startScenario = () => {
+                resetProject();
                 project.type = 'scenario';
-                project.title = 'Untitled Scenario';
-                project.structure = structureType;
+                project.title = document.getElementById('scenarioTitle').value || 'Untitled Scenario';
+                project.synopsis = document.getElementById('scenarioSynopsis').value;
+                project.genre = document.getElementById('scenarioGenre').value;
+                project.structure = document.getElementById('scenarioStructure').value;
                 hideAllModals();
-                renderProjectHeader();
-                render();
+                renderAll();
             };
 
             // --- EVENT LISTENERS ---
             modeToggle.addEventListener('change', (e) => {
                 body.classList.toggle('gm-mode', e.target.checked);
                 body.classList.toggle('writer-mode', !e.target.checked);
-                render();
+                renderAll();
             });
 
             createNewProjectButton.addEventListener('click', () => {
-                // Reset the project state for a new creation process
-                project = {
-                    type: null,
-                    title: 'Untitled Project',
-                    pitch: '',
-                    genre: '',
-                    structure: null,
-                    components: []
-                };
-                nextId = 1;
-
-                // Clear the UI before showing the modal
-                renderProjectHeader();
-                render();
-
-                // Show the first step modal
+                resetProject();
+                renderAll();
+                mainApp.classList.add('hidden');
                 projectTypeModal.classList.remove('hidden');
                 projectTypeModal.classList.add('flex');
             });
@@ -385,9 +452,14 @@
                 fileMenu.classList.toggle('hidden');
             });
 
-            document.addEventListener('click', () => {
+            document.addEventListener('click', (e) => {
                 if (!fileMenu.classList.contains('hidden')) {
                     fileMenu.classList.add('hidden');
+                }
+                // Close tag dropdown if clicking outside
+                const dropdown = document.getElementById('tag-dropdown');
+                if (dropdown && !dropdown.contains(e.target) && !e.target.matches('[data-editable-tag]')) {
+                    closeTagDropdown();
                 }
             });
 
@@ -429,16 +501,130 @@
                         const loadedData = JSON.parse(event.target.result);
                         if (loadedData && typeof loadedData === 'object' && loadedData.hasOwnProperty('components')) {
                             project = loadedData;
+                            if (!project.linkedCampaign) project.linkedCampaign = null;
                             nextId = Math.max(0, ...project.components.map(c => c.id)) + 1;
                             hideAllModals();
-                            renderProjectHeader();
-                            render();
+                            renderAll();
                         } else {
                             alert('Invalid project file format.');
                         }
                     } catch (error) {
                         console.error("Error parsing file:", error);
                         alert('Failed to load file. It might be corrupted or not a valid JSON file.');
+                    }
+                };
+                reader.readAsText(file);
+                e.target.value = ''; // Reset input
+            });
+
+            // --- IN-PLACE EDITING & CAMPAIGN LINKING ---
+            projectHeader.addEventListener('click', (e) => {
+                // Edit Title
+                if (e.target.matches('[data-editable-title]')) {
+                    const titleElement = e.target;
+                    const currentTitle = titleElement.textContent;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = currentTitle;
+                    input.className = 'text-4xl font-bold bg-transparent border-b-2 border-blue-500 w-full text-gray-800 dark:text-white';
+                    
+                    titleElement.replaceWith(input);
+                    input.focus();
+
+                    const saveTitle = () => {
+                        project.title = input.value || 'Untitled';
+                        renderProjectHeader();
+                    };
+
+                    input.addEventListener('blur', saveTitle);
+                    input.addEventListener('keydown', (ev) => {
+                        if (ev.key === 'Enter') input.blur();
+                        if (ev.key === 'Escape') {
+                            input.value = currentTitle;
+                            input.blur();
+                        }
+                    });
+                }
+
+                // Edit Tags with Dropdown
+                if (e.target.matches('[data-editable-tag]')) {
+                    const tagElement = e.target;
+                    const key = tagElement.dataset.key;
+                    let options;
+                    if (project.type === 'campaign') {
+                        options = projectOptions[`campaign${key.charAt(0).toUpperCase() + key.slice(1)}`];
+                    } else {
+                        options = projectOptions[`scenario${key.charAt(0).toUpperCase() + key.slice(1)}`];
+                    }
+                    if (!options) return;
+
+                    showTagDropdown(tagElement, key, options);
+                }
+            });
+
+            const showTagDropdown = (anchorElement, key, options) => {
+                closeTagDropdown(); // Close any existing dropdowns first
+
+                const dropdown = document.createElement('div');
+                dropdown.id = 'tag-dropdown';
+                dropdown.className = 'absolute mt-1 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg z-30 border border-gray-200 dark:border-gray-700';
+
+                options.forEach(option => {
+                    const item = document.createElement('a');
+                    item.href = '#';
+                    item.textContent = option;
+                    item.className = 'block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700';
+                    item.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        project[key] = option;
+                        renderProjectHeader();
+                        closeTagDropdown();
+                    };
+                    dropdown.appendChild(item);
+                });
+
+                const rect = anchorElement.getBoundingClientRect();
+                const headerRect = projectHeader.getBoundingClientRect();
+                dropdown.style.left = `${rect.left - headerRect.left}px`;
+                dropdown.style.top = `${rect.bottom - headerRect.top}px`;
+
+                projectHeader.appendChild(dropdown);
+            };
+
+            const closeTagDropdown = () => {
+                const existingDropdown = document.getElementById('tag-dropdown');
+                if (existingDropdown) {
+                    existingDropdown.remove();
+                }
+            };
+
+            sidebarExtras.addEventListener('click', (e) => {
+                 if (e.target.matches('#linkCampaignButton')) {
+                     linkCampaignFileInput.click();
+                 }
+                 if (e.target.matches('#unlinkCampaignButton')) {
+                     project.linkedCampaign = null;
+                     renderAll();
+                 }
+            });
+
+            linkCampaignFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const loadedData = JSON.parse(event.target.result);
+                        if (loadedData && loadedData.type === 'campaign') {
+                            project.linkedCampaign = loadedData;
+                            renderAll();
+                        } else {
+                            alert('Invalid file. Please select a valid campaign JSON file.');
+                        }
+                    } catch (error) {
+                        console.error("Error parsing campaign file:", error);
+                        alert('Failed to load campaign file.');
                     }
                 };
                 reader.readAsText(file);
@@ -454,54 +640,96 @@
                 }
                 const newComponent = { id: nextId++, type: type, data: getTemplateForType(type) };
                 project.components.push(newComponent);
-                render();
+                renderContent();
             };
             
             window.deleteComponent = (id) => {
                 project.components = project.components.filter(c => c.id !== id);
-                render();
+                renderContent();
             };
 
             window.saveComponent = (id) => {
                 const component = project.components.find(c => c.id === id);
                 if (!component) return;
                 const form = document.querySelector(`[data-id='${id}']`);
-                const inputs = form.querySelectorAll('input, textarea');
+                const inputs = form.querySelectorAll('input, textarea, select');
                 inputs.forEach(input => {
-                    if (input.dataset.key) component.data[input.dataset.key] = input.value;
+                    if (input.dataset.key) {
+                         component.data[input.dataset.key] = input.value;
+                    }
                 });
-                render();
+                renderContent();
             };
 
             const getTemplateForType = (type) => {
                 switch (type) {
-                    case 'story_arc': return { name: 'New Story Arc', summary: '' };
-                    case 'npc': return { name: 'New NPC', goal: '', description: '', quirk: '' };
-                    case 'location': return { name: 'New Location', description: '', atmosphere: '', key_figures: '' };
-                    case 'faction': return { name: 'New Faction', goals: '', key_members: '', relationships: '' };
+                    case 'story_arc': return { name: 'New Story Arc', summary: '', goal: '', key_antagonist: '', resolution: '' };
+                    case 'adventure': return { name: 'New Adventure', hook: '', goal: '', stakes: '', resolution: '' };
+                    case 'npc': return { name: 'New NPC', role: 'Quest Giver', goal: '', motivation: '', description: '', secrets_agenda: '', history: '' };
+                    case 'location': return { name: 'New Location', type: 'City', description: '', atmosphere: '', key_features: '', inhabitants: '', secrets: '' };
+                    case 'faction': return { name: 'New Faction', goals: '', ideology: '', key_members: '', resources: '', relationships: '' };
                     case 'encounter': return { name: 'New Encounter', type: 'Combat', description: '', setup: '', resolution: '' };
-                    case 'item': return { name: 'Magic Item', description: '', properties: '' };
-                    case 'clue': return { name: 'A Mysterious Clue', information: '', location_found: '' };
+                    case 'item': return { name: 'Magic Item', rarity: 'Uncommon', description: '', properties: '', attunement: 'No' };
+                    case 'clue': return { name: 'A Mysterious Clue', type: 'Physical Object', information: '', location_found: '', leads_to: '' };
                     default: return { name: 'New Component' };
                 }
             };
             
             // --- RENDER FUNCTIONS ---
+            const renderAll = () => {
+                renderProjectHeader();
+                renderContent();
+                renderSidebarExtras();
+            }
+
             const renderProjectHeader = () => {
                 if (!project.type) {
                     projectHeader.innerHTML = '';
                     return;
                 }
-                let headerHTML = `<h2 class="text-4xl font-bold text-gray-800 dark:text-white mb-2">${project.title}</h2>`;
-                if (project.type === 'campaign' && project.pitch) {
-                    headerHTML += `<p class="prose-style text-lg text-gray-600 dark:text-gray-400 italic">${project.pitch}</p>`;
+                let headerHTML = `<h2 data-editable-title class="editable-in-place text-4xl font-bold text-gray-800 dark:text-white mb-2 editable-title">${project.title}</h2>`;
+                
+                if (project.type === 'campaign') {
+                    if (project.pitch) headerHTML += `<p class="prose-style text-lg text-gray-600 dark:text-gray-400 italic mb-4">${project.pitch}</p>`;
+                    headerHTML += `<div class="flex flex-wrap gap-2 editable-in-place">
+                        <span data-editable-tag data-key="genre" class="editable-tag inline-block px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">${project.genre}</span>
+                        <span data-editable-tag data-key="tone" class="editable-tag inline-block px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">${project.tone}</span>
+                        <span data-editable-tag data-key="structure" class="editable-tag inline-block px-3 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">${project.structure}</span>
+                        <span data-editable-tag data-key="scope" class="editable-tag inline-block px-3 py-1 text-sm font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200">${project.scope}</span>
+                    </div>`;
                 } else if (project.type === 'scenario') {
-                    headerHTML += `<span class="inline-block px-3 py-1 text-sm font-semibold rounded-full ${project.structure === 'Linear' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'}">${project.structure} Structure</span>`;
+                    if (project.linkedCampaign) {
+                        headerHTML += `<div class="mb-2 text-sm text-gray-500 dark:text-gray-400">Part of Campaign: <span class="font-semibold text-gray-700 dark:text-gray-300">${project.linkedCampaign.title}</span></div>`;
+                    }
+                    if (project.synopsis) headerHTML += `<p class="prose-style text-lg text-gray-600 dark:text-gray-400 italic mb-4">${project.synopsis}</p>`;
+                     headerHTML += `<div class="flex flex-wrap gap-2 editable-in-place">
+                        <span data-editable-tag data-key="structure" class="editable-tag inline-block px-3 py-1 text-sm font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">${project.structure}</span>
+                        <span data-editable-tag data-key="genre" class="editable-tag inline-block px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">${project.genre}</span>
+                    </div>`;
                 }
                 projectHeader.innerHTML = headerHTML;
             };
 
-            const render = () => {
+            const renderSidebarExtras = () => {
+                sidebarExtras.innerHTML = '';
+                if (project.type === 'scenario') {
+                    let buttonHTML = '';
+                    if (project.linkedCampaign) {
+                        buttonHTML = `<button id="unlinkCampaignButton" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"/></svg>
+                            Unlink Campaign
+                        </button>`;
+                    } else {
+                        buttonHTML = `<button id="linkCampaignButton" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-200 hover:bg-teal-200 dark:hover:bg-teal-800 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"/></svg>
+                            Link Campaign
+                        </button>`;
+                    }
+                    sidebarExtras.innerHTML = `<h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-4">Campaign</h3>${buttonHTML}`;
+                }
+            };
+
+            const renderContent = () => {
                 mainContent.innerHTML = '';
                 if (!project.type) {
                     mainContent.innerHTML = `
@@ -564,11 +792,29 @@
                     const labelColor = component.type === 'story_arc' ? 'text-gray-300' : 'text-gray-700 dark:text-gray-300';
                     const inputBg = component.type === 'story_arc' ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-700';
                     const inputBorder = component.type === 'story_arc' ? 'border-gray-600' : 'border-gray-300 dark:border-gray-600';
+                    const value = component.data[key];
 
-                    if (key === 'description' || key === 'properties' || key === 'setup' || key === 'resolution' || key === 'summary' || key === 'goals' || key === 'relationships') {
-                        fields += `<div class="mb-4"><label class="block text-sm font-medium ${labelColor} mb-1">${label}</label><textarea data-key="${key}" class="w-full p-2 ${inputBg} border ${inputBorder} rounded-md focus:ring-blue-500 focus:border-blue-500 prose-style" rows="4">${component.data[key]}</textarea></div>`;
+                    if (key === 'rarity') {
+                        fields += `<div><label class="block text-sm font-medium ${labelColor} mb-1">${label}</label><select data-key="${key}" class="w-full p-2 ${inputBg} border ${inputBorder} rounded-md focus:ring-blue-500 focus:border-blue-500"><option>Common</option><option>Uncommon</option><option>Rare</option><option>Very Rare</option><option>Legendary</option></select></div>`;
+                        const select = document.createElement('div');
+                        select.innerHTML = fields;
+                        select.querySelector('select').value = value;
+                        fields = select.innerHTML;
+                        continue;
+                    }
+                     if (key === 'attunement') {
+                        fields += `<div><label class="block text-sm font-medium ${labelColor} mb-1">${label}</label><select data-key="${key}" class="w-full p-2 ${inputBg} border ${inputBorder} rounded-md focus:ring-blue-500 focus:border-blue-500"><option>Yes</option><option>No</option></select></div>`;
+                        const select = document.createElement('div');
+                        select.innerHTML = fields;
+                        select.querySelector('select').value = value;
+                        fields = select.innerHTML;
+                        continue;
+                    }
+
+                    if (['summary', 'description', 'properties', 'setup', 'resolution', 'goals', 'relationships', 'hook', 'stakes', 'secrets_agenda', 'history', 'atmosphere', 'key_features', 'inhabitants', 'secrets', 'ideology', 'resources', 'information'].includes(key)) {
+                        fields += `<div><label class="block text-sm font-medium ${labelColor} mb-1">${label}</label><textarea data-key="${key}" class="w-full p-2 ${inputBg} border ${inputBorder} rounded-md focus:ring-blue-500 focus:border-blue-500 prose-style" rows="4">${value}</textarea></div>`;
                     } else {
-                         fields += `<div class="mb-4"><label class="block text-sm font-medium ${labelColor} mb-1">${label}</label><input type="text" data-key="${key}" value="${component.data[key]}" class="w-full p-2 ${inputBg} border ${inputBorder} rounded-md focus:ring-blue-500 focus:border-blue-500"></div>`;
+                         fields += `<div><label class="block text-sm font-medium ${labelColor} mb-1">${label}</label><input type="text" data-key="${key}" value="${value}" class="w-full p-2 ${inputBg} border ${inputBorder} rounded-md focus:ring-blue-500 focus:border-blue-500"></div>`;
                     }
                 }
                 return `<div class="editable space-y-4">${fields}</div>`;
@@ -592,9 +838,9 @@
                 return `<div class="viewable space-y-2">${fields}</div>`;
             };
 
-            // Initial Render
-            render();
-            renderProjectHeader();
+            // Initial Load
+            resetProject();
+            renderAll();
         });
     </script>
 </body>
