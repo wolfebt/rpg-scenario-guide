@@ -927,15 +927,11 @@
                     summaryContent.innerHTML = `${icon}<span class="sidebar-text font-semibold">${label}</span>`;
                     
                     const addButton = document.createElement('button');
-                    addButton.className = 'sidebar-text p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600';
+                    addButton.className = 'add-component-btn sidebar-text p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600';
                     addButton.title = `Add ${label}`;
+                    addButton.dataset.type = type;
                     addButton.innerHTML = `<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" /></svg>`;
-                    addButton.onclick = (e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        addComponent(type);
-                    };
-
+                    
                     summary.appendChild(summaryContent);
                     summary.appendChild(addButton);
                     details.appendChild(summary);
@@ -962,6 +958,16 @@
                     componentNav.appendChild(details);
                 }
             };
+            
+            componentNav.addEventListener('click', (e) => {
+                const addButton = e.target.closest('.add-component-btn');
+                if (addButton) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addComponent(addButton.dataset.type);
+                }
+            });
+
 
             const renderActiveComponent = () => {
                 mainContent.innerHTML = '';
