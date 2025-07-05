@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0;500;0;600;0;700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #111827; /* gray-900 */
@@ -23,16 +23,15 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Trebuchet MS', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
         }
-        .book-prose {
-            font-family: 'Lora', serif;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Lora', serif;
-            font-weight: 600;
+        
+        h1, h2, h3, h4, h5, h6, .component-label, .add-component-btn, .panel-footer button, #quick-ref-list h3 {
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
         }
 
         /* Main Layout */
@@ -87,13 +86,15 @@
             display: flex;
             align-items: center;
             position: relative;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
         }
         .toc-item:hover {
             background-color: var(--hover-bg);
         }
         .toc-item.active {
             background-color: var(--active-bg);
-            font-weight: 600;
             color: var(--active-text);
         }
         .toc-item .handle {
@@ -231,7 +232,7 @@
     <div id="app-container" class="writer-mode">
         <aside id="toc-panel" class="panel">
             <div class="panel-header flex justify-between items-center">
-                <h2 class="text-xl font-bold">Table of Contents</h2>
+                <h2 class="text-xl">Table of Contents</h2>
                 <button id="undoButton" title="Undo Last Action" class="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">
                     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
@@ -244,14 +245,14 @@
             <div id="toc-list" class="panel-content space-y-1">
                 </div>
             <div class="panel-footer">
-                <button id="gmViewButton" class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-white font-semibold">GM View</button>
+                <button id="gmViewButton" class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-white">GM View</button>
             </div>
         </aside>
 
         <main id="main-panel" class="panel">
              <div class="panel-header flex justify-between items-center">
                  <div class="flex items-center gap-4">
-                     <h1 id="project-title-display" class="text-2xl font-bold">New Project</h1>
+                     <h1 id="project-title-display" class="text-2xl">New Project</h1>
                      <div class="flex items-center gap-2">
                          <button id="saveLocalButton" title="Save Project" class="p-2 rounded-md hover:bg-gray-700">
                              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
@@ -261,8 +262,11 @@
                          </button>
                      </div>
                  </div>
+                 <button id="helpButton" title="Help" class="p-2 rounded-md hover:bg-gray-700">
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
+                </button>
              </div>
-            <div id="main-scroll-area" class="panel-content book-prose">
+            <div id="main-scroll-area" class="panel-content">
                 <div id="projectHeader" class="mb-12"></div>
                 <div id="mainContent" class="space-y-8">
                     </div>
@@ -271,7 +275,7 @@
 
         <aside id="add-panel" class="panel">
             <div class="panel-header">
-                <h2 class="text-xl font-bold">Component</h2>
+                <h2 class="text-xl">Component</h2>
             </div>
             <div id="add-component-list" class="panel-content">
                 </div>
@@ -280,7 +284,7 @@
     
     <aside id="quick-ref-panel" class="panel">
         <div class="panel-header">
-            <h2 class="text-xl font-bold">Quick Reference</h2>
+            <h2 class="text-xl">Quick Reference</h2>
         </div>
         <div id="quick-ref-list" class="panel-content"></div>
     </aside>
@@ -308,12 +312,23 @@
             <h2 class="text-2xl font-bold text-white mb-4">Import Components</h2>
             <p class="text-gray-400 mb-4">Select the components you wish to import into your current project.</p>
             <div id="import-options-list" class="flex-grow overflow-y-auto border border-gray-700 rounded-lg p-4">
-                <!-- Import options will be rendered here -->
-            </div>
+                </div>
             <div class="flex justify-end gap-4 mt-6">
                 <button id="importCancelButton" class="px-6 py-2 bg-gray-600 text-white font-bold rounded-lg hover:bg-gray-500">Cancel</button>
                 <button id="importConfirmButton" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Import Selected</button>
             </div>
+        </div>
+    </div>
+    
+    <!-- Help Modal -->
+    <div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-8 max-w-4xl w-full flex flex-col" style="height: 90vh;">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-white">User Guide</h2>
+                <button id="helpCloseButton" class="p-2 rounded-full hover:bg-gray-700">&times;</button>
+            </div>
+            <div id="help-content" class="flex-grow overflow-y-auto pr-4">
+                </div>
         </div>
     </div>
 
@@ -356,6 +371,10 @@
             const importOptionsList = document.getElementById('import-options-list');
             const importCancelButton = document.getElementById('importCancelButton');
             const importConfirmButton = document.getElementById('importConfirmButton');
+            const helpButton = document.getElementById('helpButton');
+            const helpModal = document.getElementById('helpModal');
+            const helpContent = document.getElementById('help-content');
+            const helpCloseButton = document.getElementById('helpCloseButton');
 
             // --- HELPER FUNCTIONS (DEFINED EARLY) ---
             const findComponentAndParent = (id, components = project.components, parent = null) => {
@@ -422,6 +441,11 @@
                 confirmModal.classList.add('hidden');
                 confirmModal.classList.remove('flex');
                 confirmCallback = null;
+            };
+            
+            const closeHelpModal = () => {
+                helpModal.classList.add('hidden');
+                helpModal.classList.remove('flex');
             };
 
             const saveStateToHistory = () => {
@@ -494,18 +518,27 @@
             };
 
             const getTemplateForType = (type) => {
-                const templates = {
-                    'Story Arc': { name: 'New Story Arc', summary: '', goal: '', 'Key Antagonist': '', resolution: '', tags: '' },
-                    'Adventure': { name: 'New Adventure', hook: '', goal: '', stakes: '', resolution: '', tags: '' },
-                    'NPC': { name: 'New NPC', role: 'Quest Giver', appearance: '', motivation: 'To acquire wealth.', secrets: '', 'plot_hooks': '', tags: '' },
-                    'Location': { name: 'New Location', type: 'City', description: '', atmosphere: '', 'key_sights': '', 'sounds_and_smells': '', 'potential_encounters': '', secrets: '', tags: '' },
-                    'Faction': { name: 'New Faction', goals: 'Gain political control.', ideology: '', key_members: '', resources: '', tags: '' },
-                    'Encounter': { name: 'New Encounter', type: 'Combat', description: '', setup: '', resolution: '', tags: '' },
-                    'Item': { name: 'New Item', rarity: 'Uncommon', attunement: 'No', description: '', properties: '', history: '', tags: '' },
-                    'Clue': { name: 'New Clue', information: '', location_found: '', conclusion: '', tags: '' },
-                    'Map': { name: 'New Map', description: '', imageUrl: null, tags: '' },
+                const baseTemplate = {
+                    description: '',
+                    mechanic: '',
+                    notes: '',
+                    tags: ''
                 };
-                return templates[type] || { name: `New ${type}`, tags: '' };
+
+                const specificTemplates = {
+                    'Story Arc': { name: 'New Story Arc', summary: '', goal: '', 'Key Antagonist': '', resolution: '' },
+                    'Adventure': { name: 'New Adventure', hook: '', goal: '', stakes: '', resolution: '' },
+                    'NPC': { name: 'New NPC', role: 'Quest Giver', appearance: '', motivation: 'To acquire wealth.', secrets: '', 'plot_hooks': '' },
+                    'Location': { name: 'New Location', type: 'City', atmosphere: '', 'key_sights': '', 'sounds_and_smells': '', 'potential_encounters': '', secrets: '' },
+                    'Faction': { name: 'New Faction', goals: 'Gain political control.', ideology: '', key_members: '', resources: '' },
+                    'Encounter': { name: 'New Encounter', type: 'Combat', setup: '', resolution: '' },
+                    'Item': { name: 'New Item', rarity: 'Uncommon', attunement: 'No', properties: '', history: '' },
+                    'Clue': { name: 'New Clue', information: '', location_found: '', conclusion: '' },
+                    'Map': { name: 'New Map', imageUrl: null },
+                };
+                
+                const specificTemplate = specificTemplates[type] || { name: `New ${type}` };
+                return { ...specificTemplate, ...baseTemplate };
             };
 
             // --- RENDER FUNCTIONS ---
@@ -515,19 +548,20 @@
                 renderTableOfContents();
                 renderAddComponentSidebar();
                 renderActiveComponent();
-                renderGmViewButton();
-                projectTitleDisplay.textContent = project.title || 'Untitled Project';
+                gmViewButton.textContent = isFullViewActive ? 'Edit View' : 'GM View';
+                mainApp.classList.toggle('gm-mode', isFullViewActive);
+                mainApp.classList.toggle('writer-mode', !isFullViewActive);
             };
 
             const renderProjectHeader = () => {
                 const headerContent = `
                     <div class="editable-content">
-                        <input type="text" data-key="title" value="${project.title}" placeholder="Project Title" class="text-4xl font-bold w-full bg-transparent border-b-2 border-transparent focus:border-gray-600 outline-none pb-2 transition-colors">
-                        <textarea data-key="pitch" placeholder="Project Pitch..." class="book-prose text-lg w-full bg-transparent border-b-2 border-transparent focus:border-gray-600 outline-none p-2 mt-4" rows="3">${project.pitch}</textarea>
+                        <input type="text" data-key="title" value="${project.title}" placeholder="Project Title" class="text-4xl w-full bg-transparent border-b-2 border-transparent focus:border-gray-600 outline-none pb-2 transition-colors">
+                        <textarea data-key="pitch" placeholder="Project Pitch..." class="w-full bg-transparent border-b-2 border-transparent focus:border-gray-600 outline-none p-2 mt-4" rows="3">${project.pitch}</textarea>
                     </div>
                     <div class="viewable-content">
-                        <h1 class="text-4xl font-bold mb-4">${project.title}</h1>
-                        <p class="book-prose text-lg italic text-gray-400">${linkify(project.pitch)}</p>
+                        <h1 class="text-4xl mb-4">${project.title}</h1>
+                        <p class="italic text-gray-400">${linkify(project.pitch)}</p>
                     </div>
                 `;
                 projectHeader.innerHTML = headerContent;
@@ -575,7 +609,7 @@
                         itemContent.className = 'toc-item-content';
                         itemContent.style.setProperty('--level', level);
                         itemContent.innerHTML = `
-                            <span class="handle text-gray-500">⠿</span>
+                            <span class="handle text-gray-500">?</span>
                             <span class="truncate">${component.data.name}</span>
                         `;
 
@@ -625,54 +659,34 @@
                 card.dataset.id = component.id;
 
                 let fieldsHTML = '';
-                if (component.type === 'Map') {
-                     fieldsHTML = `
-                        <div class="editable-content">
-                            <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-500 mb-1">Name</label>
-                                <input type="text" data-key="name" value="${component.data.name}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">
+                for (const key in component.data) {
+                    if (key === 'imageUrl') continue;
+                    const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
+                    const value = component.data[key] || '';
+                    const isTextArea = ['summary', 'description', 'pitch', 'hook', 'stakes', 'resolution', 'motivation', 'atmosphere', 'secrets', 'goals', 'ideology', 'key_members', 'setup', 'properties', 'information', 'conclusion', 'plot_hooks', 'key_sights', 'sounds_and_smells', 'potential_encounters', 'history', 'mechanic', 'notes'].includes(key);
+                    
+                    fieldsHTML += `
+                        <div class="mb-6">
+                            <label class="component-label block text-sm mb-1">${label}</label>
+                            <div class="editable-content">
+                                ${isTextArea 
+                                    ? `<textarea data-key="${key}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">${value}</textarea>`
+                                    : `<input type="text" data-key="${key}" value="${value}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">`
+                                }
                             </div>
-                            <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-500 mb-1">Description</label>
-                                <textarea data-key="description" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">${component.data.description || ''}</textarea>
-                            </div>
-                            <button data-action="uploadMap" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-md text-white">Upload Map Image</button>
+                            <p class="viewable-content book-prose mt-1">${linkify(String(value).replace(/\n/g, '<br>'))}</p>
                         </div>
-                        <div class="viewable-content">
-                            <p class="book-prose mt-1">${linkify(component.data.description || '')}</p>
+                    `;
+                }
+                
+                if (component.type === 'Map') {
+                     fieldsHTML += `
+                        <div class="editable-content">
+                            <button data-action="uploadMap" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-md text-white">Upload Map Image</button>
                         </div>
                         ${component.data.imageUrl ? `<div class="mt-4 map-container"><img src="${component.data.imageUrl}"></div>` : ''}
                     `;
-                } else {
-                    for (const key in component.data) {
-                        if (key === 'tags') continue;
-                        const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
-                        const value = component.data[key] || '';
-                        const isTextArea = ['summary', 'description', 'pitch', 'hook', 'stakes', 'resolution', 'motivation', 'atmosphere', 'secrets', 'goals', 'ideology', 'key_members', 'setup', 'properties', 'information', 'conclusion', 'plot_hooks', 'key_sights', 'sounds_and_smells', 'potential_encounters', 'history'].includes(key);
-                        
-                        fieldsHTML += `
-                            <div class="mb-6">
-                                <label class="block text-sm font-bold text-gray-500 mb-1">${label}</label>
-                                <div class="editable-content">
-                                    ${isTextArea 
-                                        ? `<textarea data-key="${key}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">${value}</textarea>`
-                                        : `<input type="text" data-key="${key}" value="${value}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">`
-                                    }
-                                </div>
-                                <p class="viewable-content book-prose mt-1">${linkify(String(value).replace(/\n/g, '<br>'))}</p>
-                            </div>
-                        `;
-                    }
-                }
-                
-                // Tags field at the end
-                fieldsHTML += `
-                     <div class="mb-6">
-                        <label class="block text-sm font-bold text-gray-500 mb-1">Tags</label>
-                        <input type="text" data-key="tags" value="${component.data.tags || ''}" class="editable-content w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition" placeholder="comma, separated, tags">
-                        <p class="viewable-content book-prose mt-1">${component.data.tags || 'No tags'}</p>
-                    </div>
-                `;
+                } 
                 
                 const parentArray = parent ? parent.children : project.components;
                 const canIndent = index > 0;
@@ -681,7 +695,7 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-8">
                         <div>
-                            <h2 class="text-3xl font-bold">${component.data.name}</h2>
+                            <h2 class="text-3xl">${component.data.name}</h2>
                             <div class="editable-control flex items-center gap-2 mt-2">
                                 <button data-action="outdent" title="Outdent Component" class="nest-control-button p-1 hover:bg-gray-700 rounded-md" ${!canOutdent ? 'disabled' : ''}>
                                     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -717,7 +731,7 @@
                         
                         html += `
                             <div class="component-card mb-8" id="component-card-${component.id}" style="margin-left: ${level * 2}rem;">
-                                <h2 class="text-3xl font-bold mb-4 border-b border-gray-700 pb-2">${component.data.name}</h2>
+                                <h2 class="text-3xl mb-4 border-b border-gray-700 pb-2">${component.data.name}</h2>
                                 ${fieldsHTML}
                             </div>
                         `;
@@ -753,15 +767,6 @@
                 listHtml += '</div>';
                 quickRefList.innerHTML = listHtml;
             };
-            
-            const renderGmViewButton = () => {
-                if(isFullViewActive) {
-                    gmViewButton.textContent = 'Edit View';
-                } else {
-                    gmViewButton.textContent = 'GM View';
-                }
-            };
-
 
             // --- EVENT LISTENERS ---
             window.addEventListener('resize', initializeApp);
@@ -1087,6 +1092,54 @@
                 importModal.classList.remove('flex');
                 loadedProjectData = null;
                 renderAll();
+            });
+
+            helpButton.addEventListener('click', () => {
+                helpContent.innerHTML = `
+                    <h3 class="text-xl font-bold text-white mb-2">The "Book" Layout</h3>
+                    <p class="mb-4">The application is designed to feel like a digital book or binder, with a three-panel layout for maximum efficiency:</p>
+                    <ul class="list-disc list-inside space-y-2 mb-4">
+                        <li><b>Table of Contents (Left Panel):</b> This is where your project's structure lives. Every component you create will be listed here. You can click on any component to view and edit it.</li>
+                        <li><b>Main Content (Center Panel):</b> This is your primary workspace. It's where you'll edit your project's overall details and the content of each individual component.</li>
+                        <li><b>Component Panel (Right Panel):</b> This is your toolbox. Use this panel to add new components (like NPCs, Locations, and Story Arcs) to your project.</li>
+                    </ul>
+                    <h3 class="text-xl font-bold text-white mb-2">Getting Started</h3>
+                    <p class="mb-4">To edit the project title or pitch, simply click on the text and start typing. To add new components, use the buttons in the right-hand panel. Your changes are saved automatically when you click away or finish editing.</p>
+                    <h3 class="text-xl font-bold text-white mb-2">Organizing Your Project</h3>
+                     <ul class="list-disc list-inside space-y-2 mb-4">
+                        <li><b>Reordering:</b> In the Table of Contents, you can click and drag any component up or down to change its order.</li>
+                        <li><b>Nesting (Creating Sub-Components):</b> Select a component by clicking it in the Table of Contents. Then, use the indent (right arrow) and outdent (left arrow) buttons at the top of the component to change its level in the hierarchy.</li>
+                        <li><b>Filtering:</b> Use the "Filter..." bar at the top of the Table of Contents to quickly search for components by name or by tags.</li>
+                    </ul>
+                     <h3 class="text-xl font-bold text-white mb-2">Advanced Features</h3>
+                     <ul class="list-disc list-inside space-y-2 mb-4">
+                        <li><b>Tagging:</b> Every component has a "Tags" field. Add comma-separated keywords to make filtering more powerful.</li>
+                        <li><b>Wiki-Style Linking:</b> In any text field, wrap the exact name of another component in double square brackets (e.g., [[Ancient Crypt]]) to create a clickable link that will appear in GM View.</li>
+                        <li><b>Selective Import:</b> When you load a project file, a new modal will appear, allowing you to choose exactly which components to import into your current project.</li>
+                        <li><b>Undo:</b> Click the Undo button in the Table of Contents header to revert your last major action.</li>
+                    </ul>
+                    <h3 class="text-xl font-bold text-white mb-2">Running Your Game: The GM View</h3>
+                     <ul class="list-disc list-inside space-y-2 mb-4">
+                        <li><b>Activate GM View:</b> Click the "GM View" button at the bottom of the Table of Contents. This hides the editing controls and the "Add Component" panel.</li>
+                        <li><b>Read-Only Mode:</b> All your notes are displayed in order, with your nested components indented for easy reading.</li>
+                        <li><b>Quick Reference Panel:</b> A new panel appears on the right with quick links to all your NPCs and Locations. Clicking a link scrolls the main view to that component.</li>
+                        <li><b>Exit GM View:</b> To go back to editing, simply click the "Edit View" button.</li>
+                    </ul>
+                `;
+                helpModal.classList.remove('hidden');
+                helpModal.classList.add('flex');
+            });
+            helpCloseButton.addEventListener('click', closeHelpModal);
+            helpModal.addEventListener('click', (e) => { if(e.target === helpModal) closeHelpModal(); });
+            importModal.addEventListener('click', (e) => { if(e.target === importModal) importCancelButton.click(); });
+            confirmModal.addEventListener('click', (e) => { if(e.target === confirmModal) closeConfirm(); });
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (!helpModal.classList.contains('hidden')) closeHelpModal();
+                    if (!importModal.classList.contains('hidden')) importCancelButton.click();
+                    if (!confirmModal.classList.contains('hidden')) closeConfirm();
+                }
             });
 
 
