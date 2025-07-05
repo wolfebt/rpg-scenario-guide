@@ -510,46 +510,48 @@
             };
 
             // --- EVENT LISTENERS ---
-            modeToggle.addEventListener('change', (e) => {
+            if(modeToggle) modeToggle.addEventListener('change', (e) => {
                 body.classList.toggle('gm-mode', e.target.checked);
                 body.classList.toggle('writer-mode', !e.target.checked);
                 renderAll();
             });
 
-            createNewProjectButton.addEventListener('click', () => {
+            if(createNewProjectButton) createNewProjectButton.addEventListener('click', () => {
                 mainApp.classList.add('hidden');
                 mainApp.classList.remove('md:grid');
                 projectTypeModal.classList.remove('hidden');
                 projectTypeModal.classList.add('flex');
             });
 
-            settingsButton.addEventListener('click', () => {
+            if(settingsButton) settingsButton.addEventListener('click', () => {
                 apiKeyInput.value = userApiKey;
                 settingsModal.classList.remove('hidden');
                 settingsModal.classList.add('flex');
             });
 
-            projectHeader.addEventListener('input', (e) => {
-                if (e.target && e.target.dataset.key) {
-                    const key = e.target.dataset.key;
-                    project[key] = e.target.value;
-                }
-            });
+            if(projectHeader) {
+                projectHeader.addEventListener('input', (e) => {
+                    if (e.target && e.target.dataset.key) {
+                        const key = e.target.dataset.key;
+                        project[key] = e.target.value;
+                    }
+                });
 
-            projectHeader.addEventListener('click', (e) => {
-                if(body.classList.contains('writer-mode') && e.target.matches('[data-editable-tag]')) {
-                    const key = e.target.dataset.key;
-                    const optionsKey = `${project.type}${key.charAt(0).toUpperCase() + key.slice(1)}`;
-                    const options = projectOptions[optionsKey] || [];
-                    if (options.length === 0) return;
+                projectHeader.addEventListener('click', (e) => {
+                    if(body.classList.contains('writer-mode') && e.target.matches('[data-editable-tag]')) {
+                        const key = e.target.dataset.key;
+                        const optionsKey = `${project.type}${key.charAt(0).toUpperCase() + key.slice(1)}`;
+                        const options = projectOptions[optionsKey] || [];
+                        if (options.length === 0) return;
 
-                    const currentValue = project[key];
-                    const currentIndex = options.indexOf(currentValue);
-                    const nextIndex = (currentIndex + 1) % options.length;
-                    project[key] = options[nextIndex];
-                    renderProjectHeader();
-                }
-            });
+                        const currentValue = project[key];
+                        const currentIndex = options.indexOf(currentValue);
+                        const nextIndex = (currentIndex + 1) % options.length;
+                        project[key] = options[nextIndex];
+                        renderProjectHeader();
+                    }
+                });
+            }
 
             // Sidebar hover expand/collapse
             if (sidebar) {
@@ -563,13 +565,13 @@
 
 
             // --- FILE MENU LOGIC ---
-            fileMenuButton.addEventListener('click', (e) => {
+            if(fileMenuButton) fileMenuButton.addEventListener('click', (e) => {
                 e.stopPropagation();
                 fileMenu.classList.toggle('hidden');
             });
 
             document.addEventListener('click', (e) => {
-                if (!fileMenu.classList.contains('hidden')) {
+                if (fileMenu && !fileMenu.classList.contains('hidden')) {
                     fileMenu.classList.add('hidden');
                 }
                 const pinDropdown = document.querySelector('.pin-linking-dropdown');
@@ -578,13 +580,13 @@
                 }
             });
 
-            printPdfButton.addEventListener('click', (e) => {
+            if(printPdfButton) printPdfButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 window.print();
                 fileMenu.classList.add('hidden');
             });
 
-            saveLocalButton.addEventListener('click', (e) => {
+            if(saveLocalButton) saveLocalButton.addEventListener('click', (e) => {
                 e.preventDefault();
                  if (!project.type) {
                     showNotification("Please create or load a project first.", "Project Required");
@@ -604,13 +606,13 @@
                 fileMenu.classList.add('hidden');
             });
 
-            loadLocalButton.addEventListener('click', (e) => {
+            if(loadLocalButton) loadLocalButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 loadFileInput.click();
                 fileMenu.classList.add('hidden');
             });
 
-            loadFileInput.addEventListener('change', (e) => {
+            if(loadFileInput) loadFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
 
@@ -637,7 +639,7 @@
                 e.target.value = ''; // Reset input
             });
 
-            loadComponentFileInput.addEventListener('change', (e) => {
+            if(loadComponentFileInput) loadComponentFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file || currentTargetComponentId === null) return;
 
@@ -666,7 +668,7 @@
                 reader.readAsText(file);
             });
 
-            sidebarExtras.addEventListener('click', (e) => {
+            if(sidebarExtras) sidebarExtras.addEventListener('click', (e) => {
                  if (e.target.matches('#linkCampaignButton')) {
                      linkCampaignFileInput.click();
                  }
@@ -676,7 +678,7 @@
                  }
             });
 
-            linkCampaignFileInput.addEventListener('change', (e) => {
+            if(linkCampaignFileInput) linkCampaignFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
@@ -946,11 +948,6 @@
                             link.className = `sidebar-component-link w-full flex items-center gap-3 px-3 py-1 rounded-md text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${c.id === activeComponentId ? 'active' : ''}`;
                             link.dataset.id = c.id;
                             link.innerHTML = `<span class="sidebar-text truncate">${c.data.name || 'Untitled'}</span>`;
-                            link.onclick = (ev) => {
-                                ev.preventDefault();
-                                activeComponentId = c.id;
-                                renderAll();
-                            };
                             sublist.appendChild(link);
                         });
                         details.appendChild(sublist);
@@ -963,8 +960,26 @@
                 const addButton = e.target.closest('.add-component-btn');
                 if (addButton) {
                     e.preventDefault();
-                    e.stopPropagation();
                     addComponent(addButton.dataset.type);
+                    return;
+                }
+
+                const componentLink = e.target.closest('.sidebar-component-link');
+                if (componentLink) {
+                    e.preventDefault();
+                    activeComponentId = parseInt(componentLink.dataset.id);
+                    renderAll();
+                    return;
+                }
+
+                const summary = e.target.closest('summary');
+                if (summary) {
+                    const details = summary.parentElement;
+                    if (details.hasAttribute('open')) {
+                        details.removeAttribute('open');
+                    } else {
+                        details.setAttribute('open', '');
+                    }
                 }
             });
 
@@ -1376,53 +1391,34 @@
                 button.disabled = true;
                 button.innerHTML = 'Generating...';
 
-                const keyToUse = userApiKey || ""; 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${keyToUse}`;
-
-                const payload = {
-                    contents: [{
-                        role: "user",
-                        parts: [{
-                            text: prompt
-                        }]
-                    }]
-                };
+                const proxyUrl = "https://rpg-scenario-guide-9udu94s42-btws-projects.vercel.app/api/generate";
 
                 try {
-                    const response = await fetch(apiUrl, {
+                    const response = await fetch(proxyUrl, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: prompt })
                     });
 
                     if (!response.ok) {
                         const errorBody = await response.text();
-                        throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
+                        throw new Error(`Proxy request failed with status ${response.status}: ${errorBody}`);
                     }
 
                     const result = await response.json();
-
-                    if (result.candidates && result.candidates.length > 0 &&
-                        result.candidates[0].content && result.candidates[0].content.parts &&
-                        result.candidates[0].content.parts.length > 0) {
-                        const text = result.candidates[0].content.parts[0].text;
+                    
+                    if (result.text) {
                         const targetTextarea = button.parentElement.parentElement.querySelector('textarea, input');
-                         if (targetTextarea) {
-                            targetTextarea.value = text.trim();
+                        if (targetTextarea) {
+                            targetTextarea.value = result.text.trim();
                         }
                     } else {
-                        console.error("Unexpected API response structure:", result);
-                        showNotification("Could not generate text. The response was empty or malformed.", "API Error");
+                        console.error("Unexpected API response structure from proxy:", result);
+                        showNotification("Could not generate text. The response from the server was empty or malformed.", "API Error");
                     }
                 } catch (error) {
-                    console.error("Error calling Gemini API:", error);
-                    if (error.message.includes('401')) {
-                        showNotification("API request failed: Unauthorized. Please check your API key in Settings, or ensure one is configured in the environment.", "API Error");
-                    } else {
-                        showNotification("An error occurred while generating text. Please check the console for details.", "API Error");
-                    }
+                    console.error("Error calling proxy:", error);
+                    showNotification(`An error occurred while generating text: ${error.message}`, "API Error");
                 } finally {
                     button.disabled = false;
                     button.innerHTML = originalText;
