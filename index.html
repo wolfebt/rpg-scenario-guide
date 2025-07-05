@@ -302,6 +302,21 @@
         </div>
     </div>
 
+    <!-- Import Modal -->
+    <div id="importModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-8 max-w-2xl w-full flex flex-col" style="height: 90vh;">
+            <h2 class="text-2xl font-bold text-white mb-4">Import Components</h2>
+            <p class="text-gray-400 mb-4">Select the components you wish to import into your current project.</p>
+            <div id="import-options-list" class="flex-grow overflow-y-auto border border-gray-700 rounded-lg p-4">
+                <!-- Import options will be rendered here -->
+            </div>
+            <div class="flex justify-end gap-4 mt-6">
+                <button id="importCancelButton" class="px-6 py-2 bg-gray-600 text-white font-bold rounded-lg hover:bg-gray-500">Cancel</button>
+                <button id="importConfirmButton" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Import Selected</button>
+            </div>
+        </div>
+    </div>
+
     <input type="file" id="loadFileInput" class="hidden" accept=".json">
     <input type="file" id="mapImageInput" class="hidden" accept="image/*">
 
@@ -315,6 +330,7 @@
             let draggingItemId = null;
             let confirmCallback = null;
             let isFullViewActive = false;
+            let loadedProjectData = null;
 
             // --- DOM ELEMENTS ---
             const mainApp = document.getElementById('app-container');
@@ -336,6 +352,10 @@
             const confirmCancelButton = document.getElementById('confirmCancelButton');
             const gmViewButton = document.getElementById('gmViewButton');
             const quickRefList = document.getElementById('quick-ref-list');
+            const importModal = document.getElementById('importModal');
+            const importOptionsList = document.getElementById('import-options-list');
+            const importCancelButton = document.getElementById('importCancelButton');
+            const importConfirmButton = document.getElementById('importConfirmButton');
 
             // --- HELPER FUNCTIONS (DEFINED EARLY) ---
             const findComponentAndParent = (id, components = project.components, parent = null) => {
@@ -754,14 +774,9 @@
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     try {
-                        const loadedData = JSON.parse(event.target.result);
-                        if (loadedData && loadedData.title && loadedData.components) {
-                            saveStateToHistory();
-                            project = loadedData;
-                            nextId = Math.max(0, ...getAllComponents(project.components).map(c => c.id)) + 1 || 1;
-                            activeComponentId = project.components.length > 0 ? project.components[0].id : null;
-                            isFullViewActive = false;
-                            renderAll();
+                        loadedProjectData = JSON.parse(event.target.result);
+                        if (loadedProjectData && loadedProjectData.title && loadedProjectData.components) {
+                           renderImportModal(loadedProjectData);
                         } else {
                             alert('Invalid project file.');
                         }
@@ -984,6 +999,81 @@
                 const dropTargetId = parseInt(dropTargetElement.dataset.id);
                 moveComponent(draggingItemId, dropTargetId);
             });
+            
+            // --- IMPORT LOGIC ---
+            const renderImportModal = (data) => {
+                let html = `
+                    <label class="flex items-center space-x-3 p-2 hover:bg-gray-700 rounded-md">
+                        <input type="checkbox" data-import-key="title" checked class="h-4 w-4 rounded border-gray-600 text-blue-500 focus:ring-blue-500">
+                        <span class="font-bold">Project Title: ${data.title}</span>
+                    </label>
+                    <label class="flex items-center space-x-3 p-2 hover:bg-gray-700 rounded-md">
+                        <input type="checkbox" data-import-key="pitch" checked class="h-4 w-4 rounded border-gray-600 text-blue-500 focus:ring-blue-500">
+                        <span class="font-bold">Project Pitch</span>
+                    </label>
+                    <hr class="border-gray-600 my-4">
+                `;
+
+                const renderImportItems = (components, level = 0) => {
+                    components.forEach(component => {
+                        html += `
+                            <label class="flex items-center space-x-3 p-2 hover:bg-gray-700 rounded-md" style="padding-left: ${1 + level * 1.5}rem;">
+                                <input type="checkbox" data-import-id="${component.id}" checked class="h-4 w-4 rounded border-gray-600 text-blue-500 focus:ring-blue-500">
+                                <span>${component.data.name} <span class="text-sm text-gray-400">(${component.type})</span></span>
+                            </label>
+                        `;
+                        if (component.children && component.children.length > 0) {
+                            renderImportItems(component.children, level + 1);
+                        }
+                    });
+                };
+                renderImportItems(data.components);
+                importOptionsList.innerHTML = html;
+                importModal.classList.remove('hidden');
+                importModal.classList.add('flex');
+            };
+            
+            importCancelButton.addEventListener('click', () => {
+                importModal.classList.add('hidden');
+                importModal.classList.remove('flex');
+                loadedProjectData = null;
+            });
+
+            importConfirmButton.addEventListener('click', () => {
+                if (!loadedProjectData) return;
+                saveStateToHistory();
+
+                const importTitle = document.querySelector('[data-import-key="title"]').checked;
+                const importPitch = document.querySelector('[data-import-key="pitch"]').checked;
+
+                if (importTitle) project.title = loadedProjectData.title;
+                if (importPitch) project.pitch = loadedProjectData.pitch;
+
+                const remapIdsAndFilter = (components) => {
+                    const newComponents = [];
+                    components.forEach(comp => {
+                        const checkbox = document.querySelector(`[data-import-id="${comp.id}"]`);
+                        if (checkbox && checkbox.checked) {
+                            const newComp = structuredClone(comp);
+                            newComp.id = nextId++;
+                            if (newComp.children) {
+                                newComp.children = remapIdsAndFilter(newComp.children);
+                            }
+                            newComponents.push(newComp);
+                        }
+                    });
+                    return newComponents;
+                };
+
+                const componentsToImport = remapIdsAndFilter(loadedProjectData.components);
+                project.components.push(...componentsToImport);
+                
+                importModal.classList.add('hidden');
+                importModal.classList.remove('flex');
+                loadedProjectData = null;
+                renderAll();
+            });
+
 
             // --- INITIALIZE ---
             initializeApp();
