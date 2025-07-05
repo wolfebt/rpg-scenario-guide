@@ -263,23 +263,35 @@
 
         /* Styling for rendered content in GM View */
         .book-prose > *:first-child { margin-top: 0; }
-        .book-prose h1, .book-prose h2, .book-prose h3, .book-prose h4, .book-prose h5, .book-prose h6 {
-            color: var(--text-color); margin-top: 1.25em; margin-bottom: 0.5em; text-transform: none;
+        .book-prose h3 {
+            font-size: 1.25em;
+            text-transform: none;
+            margin-top: 1.5em;
+            margin-bottom: 0.75em;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.25em;
         }
-        .book-prose h1 { font-size: 2em; } .book-prose h2 { font-size: 1.5em; } .book-prose h3 { font-size: 1.25em; }
+        .book-prose h4 {
+            font-size: 1.1em;
+            text-transform: none;
+            margin-top: 1.25em;
+            margin-bottom: 0.5em;
+        }
         .book-prose p { margin-bottom: 1em; line-height: 1.6; }
-        .book-prose ul, .book-prose ol { padding-left: 1.5em; margin-bottom: 1em; }
-        .book-prose ul { list-style-type: disc; } .book-prose ol { list-style-type: decimal; }
+        .book-prose ul { padding-left: 1.5em; margin-bottom: 1em; list-style-type: disc; }
         .book-prose li { margin-bottom: 0.5em; }
         .book-prose a { color: var(--link-color); text-decoration: underline; }
         .book-prose strong, .book-prose b { font-weight: bold; color: var(--active-text); }
         .book-prose em, .book-prose i { font-style: italic; }
         .book-prose u { text-decoration: underline; }
-        .book-prose blockquote { border-left: 4px solid var(--border-color); padding-left: 1em; margin-left: 0; color: var(--text-muted); font-style: italic; }
-        .book-prose pre { background-color: var(--bg-color); padding: 1em; border-radius: 0.5rem; overflow-x: auto; }
-        .book-prose code { background-color: var(--bg-color); padding: 0.2em 0.4em; border-radius: 0.25rem; font-size: 0.9em; }
-        .book-prose pre code { background-color: transparent; padding: 0; }
-
+        .book-prose code {
+            background-color: var(--bg-color);
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+            font-family: monospace;
+        }
+        
         /* Quick Reference Panel */
         #quick-ref-panel {
             position: fixed;
@@ -416,7 +428,7 @@
                 <h2 class="text-2xl font-bold text-white">User Guide</h2>
                 <button id="helpCloseButton" class="p-2 rounded-full hover:bg-gray-700">&times;</button>
             </div>
-            <div id="help-content" class="flex-grow overflow-y-auto pr-4">
+            <div id="help-content" class="flex-grow overflow-y-auto pr-4 book-prose">
                 <!-- Help content will be dynamically inserted here -->
             </div>
         </div>
@@ -500,25 +512,26 @@
             const processTextForDisplay = (html) => {
                 if (typeof html !== 'string') return '';
                 
-                // Create a temporary div to parse and manipulate the HTML
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = html;
 
-                // Find all internal links and replace them with the correct clickable format
                 const internalLinks = tempDiv.querySelectorAll('.internal-link');
                 const allComponents = getAllComponents(project.components);
 
                 internalLinks.forEach(link => {
                     const componentName = link.textContent;
                     const target = allComponents.find(c => c.data.name.toLowerCase() === componentName.toLowerCase());
+                    const newLink = document.createElement('a');
+                    newLink.href = '#';
                     if (target) {
-                        const newLink = document.createElement('a');
-                        newLink.href = '#';
                         newLink.className = 'component-link';
                         newLink.dataset.linkId = target.id;
-                        newLink.textContent = componentName;
-                        link.replaceWith(newLink);
+                    } else {
+                        newLink.className = 'component-link-broken';
+                        newLink.title = 'Component not found';
                     }
+                    newLink.textContent = componentName;
+                    link.replaceWith(newLink);
                 });
 
                 return tempDiv.innerHTML;
@@ -779,11 +792,11 @@
                                 <label class="component-label block text-sm mb-1">${label}</label>
                                 <div class="editable-content">
                                     <div class="editor-toolbar">
-                                        <button data-command="bold" class="bold">B</button>
-                                        <button data-command="italic" class="italic">I</button>
-                                        <button data-command="underline" class="underline">U</button>
-                                        <button data-command="createLink" title="Create Internal Link">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" /></svg>
+                                        <button data-command="bold" class="bold" title="Bold (Ctrl+B)">B</button>
+                                        <button data-command="italic" class="italic" title="Italic (Ctrl+I)">I</button>
+                                        <button data-command="underline" class="underline" title="Underline (Ctrl+U)">U</button>
+                                        <button data-command="createLink" title="Create Internal Link (Ctrl+L)">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" /></svg>
                                         </button>
                                     </div>
                                     <div data-key="${key}" class="wysiwyg-editor" contenteditable="true">${value}</div>
@@ -1015,7 +1028,6 @@
                         span.appendChild(range.extractContents());
                         range.insertNode(span);
                         
-                        // Manually trigger input event to save changes
                         editor.dispatchEvent(new Event('input', { bubbles: true }));
 
                     } else {
@@ -1077,7 +1089,6 @@
                         span.appendChild(range.extractContents());
                         range.insertNode(span);
 
-                        // Manually trigger input event to save changes
                         e.target.dispatchEvent(new Event('input', { bubbles: true }));
                     } else {
                         document.execCommand(command, false, null);
@@ -1282,35 +1293,65 @@
 
             helpButton.addEventListener('click', () => {
                 helpContent.innerHTML = `
-                    <h3 class="text-xl font-bold text-white mb-2">The "Book" Layout</h3>
-                    <p class="mb-4">The application is designed to feel like a digital book or binder, with a three-panel layout for maximum efficiency:</p>
-                    <ul class="list-disc list-inside space-y-2 mb-4">
-                        <li><b>Table of Contents (Left Panel):</b> This is where your project's structure lives. Every component you create will be listed here. You can click on any component to view and edit it.</li>
-                        <li><b>Main Content (Center Panel):</b> This is your primary workspace. It's where you'll edit your project's overall details and the content of each individual component.</li>
-                        <li><b>Component Panel (Right Panel):</b> This is your toolbox. Use this panel to add new components (like NPCs, Locations, and Story Arcs) to your project.</li>
+                    <h3>Welcome to the RPG Scenario Guide!</h3>
+                    <p>This guide is designed to be your all-in-one digital binder for creating and running your roleplaying game adventures. Here's how to get the most out of it.</p>
+                    
+                    <h4>The Core Idea: Your Digital Binder</h4>
+                    <p>Think of your entire adventure as a single <strong>Project</strong>. This project holds everything:</p>
+                    <ul>
+                        <li>A <strong>Title</strong> and a short <strong>Pitch</strong> to summarize your story.</li>
+                        <li>A collection of <strong>Components</strong>, which are the building blocks of your adventure (like NPCs, Locations, Items, and Encounters).</li>
                     </ul>
-                    <h3 class="text-xl font-bold text-white mb-2">Getting Started</h3>
-                    <p class="mb-4">To edit the project title or pitch, simply click on the text and start typing. To add new components, use the buttons in the right-hand panel. Your changes are saved automatically when you click away or finish editing.</p>
-                    <h3 class="text-xl font-bold text-white mb-2">Organizing Your Project</h3>
-                     <ul class="list-disc list-inside space-y-2 mb-4">
-                        <li><b>Reordering:</b> In the Table of Contents, you can click and drag any component up or down to change its order.</li>
-                        <li><b>Nesting (Creating Sub-Components):</b> Select a component by clicking it in the Table of Contents. Then, use the indent (right arrow) and outdent (left arrow) buttons at the top of the component to change its level in the hierarchy.</li>
-                        <li><b>Filtering:</b> Use the "Filter..." bar at the top of the Table of Contents to quickly search for components by name or by tags.</li>
+                    <p>You can organize these components into a detailed outline by nesting them. For example, you can place an "Encounter" page inside a "Dungeon Room" page, which itself is inside a "Dungeon" location.</p>
+                    
+                    <h4>The Three-Panel Workspace</h4>
+                    <p>The application is split into three main areas to keep your workflow smooth and organized.</p>
+                    <ul>
+                        <li><strong>Left Panel (Table of Contents):</strong> This is your adventure's interactive outline.
+                            <ul>
+                                <li><strong>Navigate:</strong> Click any item to view and edit its details in the center panel.</li>
+                                <li><strong>Organize:</strong> Drag and drop items to reorder them. Use the indent/outdent buttons in the editor to create a nested hierarchy.</li>
+                                <li><strong>Find:</strong> Use the filter bar at the top to instantly search for any component by its name or tags.</li>
+                                <li><strong>Fix Mistakes:</strong> The <strong>Undo</strong> button lets you reverse your last major action, like deleting or moving a component.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Center Panel (The Workspace):</strong> This is where you'll do all your writing and editing. It shows the full details of the component you've selected from the Table of Contents.</li>
+                        <li><strong>Right Panel (The Toolbox):</strong> This is where you add new content. Click any button here to add a pre-made template for an NPC, Location, Faction, and more to your project.</li>
                     </ul>
-                     <h3 class="text-xl font-bold text-white mb-2">Advanced Features</h3>
-                     <ul class="list-disc list-inside space-y-2 mb-4">
-                        <li><b>Rich Text Editor:</b> Use the toolbar or keyboard shortcuts (Ctrl+B, Ctrl+I, Ctrl+U, Ctrl+L) for a word processor-like editing experience.</li>
-                        <li><b>Tagging:</b> Every component has a "Tags" field. Add comma-separated keywords to make filtering more powerful.</li>
-                        <li><b>Wiki-Style Linking:</b> Use the link button or Ctrl+L to create clickable links to other components in your project.</li>
-                        <li><b>Selective Import:</b> When you load a project file, a new modal will appear, allowing you to choose exactly which components to import into your current project.</li>
-                        <li><b>Undo:</b> Click the Undo button in the Table of Contents header to revert your last major action.</li>
+
+                    <h4>The Editor: What You See Is What You Get</h4>
+                    <p>The text editor works just like a modern word processor. There's no code to learn; the text in the editor looks exactly how it will in the final view.</p>
+                    <ul>
+                        <li><strong>Toolbar & Shortcuts:</strong> To format text, simply highlight it and use either the toolbar buttons or familiar keyboard shortcuts:
+                            <ul>
+                                <li><strong>Bold:</strong> <code>Ctrl+B</code></li>
+                                <li><strong>Italic:</strong> <code>Ctrl+I</code></li>
+                                <li><strong>Underline:</strong> <code>Ctrl+U</code></li>
+                            </ul>
+                        </li>
+                        <li><strong>Internal Links (Wiki-Style):</strong> This is a powerful feature for connecting your notes.
+                            <ul>
+                                <li>Highlight a piece of text (like an NPC's name) and press <code>Ctrl+L</code> or click the <strong>Link</strong> button on the toolbar.</li>
+                                <li>This creates a special link. In the "GM View," you can click this link to instantly jump to that component's page.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Automatic Saving:</strong> All your changes are saved automatically as you type and when you click away from an editor.</li>
                     </ul>
-                    <h3 class="text-xl font-bold text-white mb-2">Running Your Game: The GM View</h3>
-                     <ul class="list-disc list-inside space-y-2 mb-4">
-                        <li><b>Activate GM View:</b> Click the "GM View" button at the bottom of the Table of Contents. This hides the editing controls.</li>
-                        <li><b>Read-Only Mode:</b> All your notes are displayed in a clean, readable format.</li>
-                        <li><b>Quick Reference Panel:</b> A new panel appears on the right with quick links to all your NPCs and Locations. Clicking a link scrolls the main view to that component.</li>
-                        <li><b>Exit GM View:</b> To go back to editing, simply click the "Edit View" button.</li>
+
+                    <h4>Key Features</h4>
+                    <ul>
+                        <li><strong>Writer Mode vs. GM View:</strong> The application has two modes.
+                            <ul>
+                                <li><strong>Writer Mode:</strong> The default view, where you have access to all editing tools to prepare your adventure.</li>
+                                <li><strong>GM View:</strong> A streamlined, read-only mode designed for use while running your game. It hides all the toolbars and presents your notes in a clean, easy-to-read format. Click the "GM View" button to switch.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Saving and Loading Your Work:</strong>
+                            <ul>
+                                <li><strong>Save:</strong> Click the "Save" icon to download your entire project as a single <code>.json</code> file. This is perfect for making backups or sharing your adventure.</li>
+                                <li><strong>Load:</strong> Click the "Load" icon to open a project file. A window will appear allowing you to choose exactly which components from the file you want to import into your current project.</li>
+                            </ul>
+                        </li>
                     </ul>
                 `;
                 helpModal.classList.remove('hidden');
