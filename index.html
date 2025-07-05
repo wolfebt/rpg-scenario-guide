@@ -515,6 +515,7 @@
                 renderTableOfContents();
                 renderAddComponentSidebar();
                 renderActiveComponent();
+                renderGmViewButton();
                 projectTitleDisplay.textContent = project.title || 'Untitled Project';
             };
 
@@ -752,6 +753,14 @@
                 listHtml += '</div>';
                 quickRefList.innerHTML = listHtml;
             };
+            
+            const renderGmViewButton = () => {
+                if(isFullViewActive) {
+                    gmViewButton.textContent = 'Edit View';
+                } else {
+                    gmViewButton.textContent = 'GM View';
+                }
+            };
 
 
             // --- EVENT LISTENERS ---
@@ -806,10 +815,16 @@
             });
             
             gmViewButton.addEventListener('click', () => {
-                isFullViewActive = true;
-                activeComponentId = null;
-                mainApp.classList.add('gm-mode');
-                mainApp.classList.remove('writer-mode');
+                isFullViewActive = !isFullViewActive;
+                if(isFullViewActive) {
+                    activeComponentId = null;
+                    mainApp.classList.add('gm-mode');
+                    mainApp.classList.remove('writer-mode');
+                } else {
+                    activeComponentId = project.components.length > 0 ? project.components[0].id : null;
+                    mainApp.classList.remove('gm-mode');
+                    mainApp.classList.add('writer-mode');
+                }
                 renderAll();
             });
             
