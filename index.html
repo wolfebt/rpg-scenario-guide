@@ -1,1511 +1,859 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG SCENARIO GUIDE</title>
+    <title>RPG Scenario Guide - Book Layout</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0;500;0;600;0;700;1,400&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        .prose-style {
-            font-family: 'Lora', serif;
-        }
-        .gm-mode .editable, .gm-mode .editable-in-place {
-            display: none;
-        }
-        .writer-mode .viewable {
-            display: none;
-        }
-        .sidebar-icon {
-            width: 24px;
-            height: 24px;
-            stroke-width: 2;
-        }
-        /* Simple toggle switch styles */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #4a5568;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .slider {
-            background-color: #4299e1;
-        }
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-        .story-arc-card {
-            background-color: #1a202c; /* A darker background for arcs */
-            border-left: 4px solid #4299e1; /* Blue accent line */
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-        }
-        .editable-tag {
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .writer-mode .editable-tag:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .editable-title {
-             cursor: pointer;
-             border-bottom: 2px dashed transparent;
-        }
-        .editable-title:hover {
-             border-bottom: 2px dashed #9ca3af;
-        }
-        #projectHeader {
-            position: relative;
-        }
-        /* Style for disabled component navigation */
-        #componentNav.disabled {
-            opacity: 0.5;
-            pointer-events: none;
+        :root {
+            --bg-color: #111827; /* gray-900 */
+            --panel-bg: #1f2937; /* gray-800 */
+            --border-color: #374151; /* gray-700 */
+            --text-color: #d1d5db; /* gray-300 */
+            --text-muted: #9ca3af; /* gray-400 */
+            --hover-bg: #374151; /* gray-700 */
+            --active-bg: #4b5563; /* gray-600 */
+            --active-text: #ffffff;
+            --drop-indicator-color: #60a5fa; /* blue-400 */
         }
 
-        /* GM View Enhancements */
-        .gm-only-section {
-            background-color: #fef2f2; /* Light red */
-            border: 1px solid #fca5a5; /* Red border */
-            border-radius: 0.5rem;
-            padding: 1rem;
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
         }
-        .dark .gm-only-section {
-             background-color: #312121; /* Dark red */
-             border-color: #904444;
+        .book-prose {
+            font-family: 'Lora', serif;
         }
-        .gm-only-header {
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 700;
-            color: #b91c1c; /* Red text */
-        }
-         .dark .gm-only-header {
-            color: #fca5a5;
-         }
-        .component-link {
-            color: #60a5fa; /* blue-400 */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Lora', serif;
             font-weight: 600;
-            cursor: pointer;
         }
-        .component-link:hover {
-            text-decoration: underline;
+
+        /* Main Layout */
+        #app-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 250px;
+            height: 100vh;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            transition: grid-template-columns 0.3s ease;
+        }
+        #app-container.gm-mode {
+            grid-template-columns: 300px 1fr 0;
+        }
+        #app-container.gm-mode #add-panel {
+            display: none;
+        }
+
+
+        /* Panels */
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .panel-content {
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .panel-footer {
+            padding: 0.5rem;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        /* Table of Contents */
+        .toc-item {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            cursor: grab;
+            transition: background-color 0.2s, padding-left 0.2s;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        .toc-item:hover {
+            background-color: var(--hover-bg);
+        }
+        .toc-item.active {
+            background-color: var(--active-bg);
+            font-weight: 600;
+            color: var(--active-text);
+        }
+        .toc-item .handle {
+            opacity: 0.3;
+            cursor: grab;
+            margin-right: 0.5rem;
+        }
+        .toc-item:hover .handle {
+            opacity: 1;
+        }
+        .toc-item.dragging {
+            opacity: 0.5;
+            background-color: var(--active-bg);
+        }
+        .drop-target {
+            border-top: 2px solid var(--drop-indicator-color) !important;
         }
         
-        /* Map Styles */
+        /* Nesting Lines */
+        .toc-item-container {
+            position: relative;
+        }
+        .nesting-line {
+            position: absolute;
+            left: 1.25rem; /* Adjust based on padding */
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background-color: var(--border-color);
+            z-index: 0;
+        }
+        .toc-item[data-level='0'] .nesting-line { display: none; }
+        .toc-item-content {
+            position: relative;
+            padding-left: calc(var(--level, 0) * 1.5rem);
+            flex-grow: 1;
+        }
+
+
+        /* Add Component Panel */
+        .add-component-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s;
+        }
+        .add-component-btn:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        /* Nesting & Editing Controls */
+        .writer-mode .viewable-content { display: none; }
+        .gm-mode .editable-content { display: none; }
+        .gm-mode .editable-control { display: none !important; }
+
+        .nest-control-button:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        /* Main Content Panel */
+        #main-panel .panel-content {
+            padding: 2.5rem;
+        }
+        #mainContent .component-card {
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 2rem;
+            background-color: var(--panel-bg);
+        }
+        
+        input, textarea {
+            background-color: var(--panel-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+        input:focus, textarea:focus {
+            --tw-ring-color: var(--text-muted);
+        }
+        
         .map-container {
             position: relative;
             width: 100%;
             cursor: crosshair;
-        }
-        .map-pin {
-            position: absolute;
-            width: 24px;
-            height: 24px;
-            transform: translate(-50%, -100%);
-            cursor: pointer;
-        }
-        .pin-linking-dropdown {
-            position: absolute;
-            background-color: white;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        
-        /* Session Planner Styles */
-        .asset-planner {
-            max-height: 300px;
-            overflow-y: auto;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-color);
             border-radius: 0.5rem;
-            padding: 0.5rem;
         }
-        .dark .asset-planner {
-            border-color: #4b5563;
-        }
-        .quick-reference-panel {
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            padding: 1rem;
-        }
-        .dark .quick-reference-panel {
-             background-color: #1f2937;
-             border-color: #4b5563;
-        }
-        .clue-warning {
-            color: #ef4444; /* red-500 */
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-        .dark .clue-warning {
-            color: #f87171; /* red-400 */
-        }
-        .generate-btn {
-            background-color: #8b5cf6;
-            color: white;
-        }
-        .generate-btn:hover {
-            background-color: #7c3aed;
-        }
-         .generate-btn:disabled {
-            background-color: #a78bfa;
-            cursor: not-allowed;
-        }
-
-        /* Collapsible Sidebar */
-        #app {
-            grid-template-columns: 80px 1fr;
-            transition: grid-template-columns 0.3s ease;
-        }
-        #app.sidebar-hovered {
-            grid-template-columns: 280px 1fr;
-        }
-        aside .sidebar-text {
-            display: none;
-        }
-        #app.sidebar-hovered aside .sidebar-text {
-            display: inline;
-        }
-        #app.sidebar-hovered aside .sidebar-title {
+        .map-container img {
             display: block;
-        }
-        aside .sidebar-title {
-            display: none;
-        }
-        #app.sidebar-hovered aside .mode-toggle-labels {
-            display: flex;
-        }
-        aside .mode-toggle-labels {
-            display: none;
-        }
-        .sidebar-component-link.active {
-            background-color: #e0e7ff;
-        }
-        .dark .sidebar-component-link.active {
-            background-color: #3730a3;
-        }
-        #componentNav summary {
-            cursor: pointer;
-        }
-        #componentNav summary:hover {
-             background-color: #f3f4f6;
-        }
-        .dark #componentNav summary:hover {
-             background-color: #374151;
+            max-width: 100%;
+            border-radius: 0.5rem;
         }
 
-
-        /* Print-specific styles */
-        @media print {
-            body {
-                background-color: white !important;
-                color: black !important;
+        /* Mobile */
+        @media (max-width: 1024px) {
+            #app-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 1rem;
             }
-            #app {
-                display: block !important; /* Override grid for printing */
-            }
-            aside, #projectTypeModal, #mobileMessage, .editable, .no-print, .editable-in-place, #notificationModal {
-                display: none !important;
-            }
-            main {
-                overflow-y: visible !important;
-                height: auto !important;
-            }
-            .viewable {
-                display: block !important; /* Ensure viewable content is visible */
-            }
-            .bg-white, .dark\:bg-gray-800, .story-arc-card {
-                box-shadow: none !important;
-                border: 1px solid #ccc !important;
-                background-color: white !important;
-                color: black !important;
-            }
-            h2, h3, h4, p, span, div {
-                color: black !important;
-            }
-            .prose-style {
-                color: black !important;
+            #toc-panel, #add-panel {
+                display: none; /* Hide side panels on smaller screens */
             }
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-200 transition-colors duration-300 writer-mode">
+<body>
 
-    <!-- Notification Modal -->
-    <div id="notificationModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-md w-full text-center">
-            <h3 id="notificationTitle" class="text-xl font-bold text-gray-800 dark:text-white mb-4">Notification</h3>
-            <p id="notificationMessage" class="text-gray-600 dark:text-gray-300 mb-6"></p>
-            <button onclick="closeNotification()" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">OK</button>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-lg w-full">
-            <h2 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Settings</h2>
-            <div class="space-y-4">
-                <div>
-                    <label for="apiKeyInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Gemini API Key</label>
-                    <input type="password" id="apiKeyInput" placeholder="Enter your API key" class="mt-1 block w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                    <p class="text-xs text-gray-500 mt-1">Your key is stored only in your browser's local storage.</p>
-                </div>
-            </div>
-            <div class="mt-6 flex justify-end gap-4">
-                <button onclick="closeSettings()" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500">Cancel</button>
-                <button onclick="saveSettings()" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Save</button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Initial Project Type Selection Modal -->
-    <div id="projectTypeModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-2xl w-full transform transition-all scale-100 opacity-100">
-            <h2 class="text-3xl font-bold mb-4 text-center text-gray-800 dark:text-white">What are you creating?</h2>
-            <p class="text-center text-gray-600 dark:text-gray-400 mb-8">Choose a project type to get started.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <button onclick="startProject('campaign')" class="structure-card text-left p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:ring-2 hover:ring-purple-500 hover:bg-purple-50 dark:hover:bg-gray-600 transition-all">
-                    <h3 class="font-bold text-xl mb-2 text-gray-800 dark:text-white">Campaign</h3>
-                    <p class="text-gray-600 dark:text-gray-400">A multi-session, long-form adventure with story arcs, factions, and deep world-building.</p>
-                </button>
-                <button onclick="startProject('adventure')" class="structure-card text-left p-6 bg-gray-50 dark:bg-gray-700 rounded-lg hover:ring-2 hover:ring-teal-500 hover:bg-teal-50 dark:hover:bg-gray-600 transition-all">
-                    <h3 class="font-bold text-xl mb-2 text-gray-800 dark:text-white">Adventure</h3>
-                    <p class="text-gray-600 dark:text-gray-400">A self-contained adventure, ideal for a single session or a short series of games.</p>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main App Layout -->
-    <div id="app" class="md:grid h-screen">
-        <!-- Sidebar -->
-        <aside class="bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col p-4 overflow-hidden">
-            <!-- Title Row -->
-            <div class="mb-4 text-center">
-                <h1 class="text-2xl font-bold sidebar-title">RPG SCENARIO GUIDE</h1>
-            </div>
-
-            <!-- Buttons Row -->
-            <div class="flex justify-between items-center mb-8 px-2">
-                <!-- File Menu Dropdown -->
-                <div class="relative no-print">
-                    <button id="fileMenuButton" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
-                        </svg>
-                    </button>
-                    <div id="fileMenu" class="hidden absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg z-20 border border-gray-200 dark:border-gray-700">
-                        <a href="#" id="printPdfButton" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Print to PDF</a>
-                        <a href="#" id="saveLocalButton" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Save Local (.json)</a>
-                        <a href="#" id="loadLocalButton" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">Load Local (.json)</a>
-                    </div>
-                </div>
-                
-                <!-- Add New Project Button -->
-                <button id="createNewProjectButton" title="Create New Project" class="p-1 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 no-print">
-                    <svg class="w-7 h-7" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                      <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 9a.75.75 0 00-1.5 0v2.25H9a.75.75 0 000 1.5h2.25V15a.75.75 0 001.5 0v-2.25H15a.75.75 0 000-1.5h-2.25V9z" clip-rule="evenodd" />
-                    </svg>
-                </button>
-                
-                <!-- Settings Button -->
-                <button id="settingsButton" title="Settings" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 no-print">
-                    <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    <div id="app-container" class="writer-mode">
+        <aside id="toc-panel" class="panel">
+            <div class="panel-header flex justify-between items-center">
+                <h2 class="text-xl font-bold">Table of Contents</h2>
+                <button id="undoButton" title="Undo Last Action" class="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                     </svg>
                 </button>
             </div>
-
-            <nav id="componentNav" class="flex-grow space-y-1 overflow-y-auto no-print"></nav>
-            
-            <div id="sidebarExtras" class="no-print mt-4"></div>
-
-            <div class="mt-auto no-print">
-                <div class="flex items-center justify-between p-2 rounded-md bg-gray-100 dark:bg-gray-700">
-                    <span class="font-semibold text-sm mode-toggle-labels">Writer Mode</span>
-                    <label class="switch">
-                        <input type="checkbox" id="modeToggle">
-                        <span class="slider"></span>
-                    </label>
-                    <span class="font-semibold text-sm mode-toggle-labels">GM Mode</span>
+            <div id="toc-list" class="panel-content space-y-1">
                 </div>
+            <div class="panel-footer">
+                <button id="gmViewButton" class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-white font-semibold">GM View</button>
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main id="mainPanel" class="bg-gray-100 dark:bg-gray-900 overflow-y-auto">
-            <div class="p-8">
-                <div id="projectHeader" class="mb-8"></div>
-                <div id="mainContent" class="space-y-6">
-                    <!-- Components will be rendered here -->
-                </div>
+        <main id="main-panel" class="panel">
+             <div class="panel-header flex justify-between items-center">
+                 <div class="flex items-center gap-4">
+                     <h1 id="project-title-display" class="text-2xl font-bold">New Project</h1>
+                     <div class="flex items-center gap-2">
+                         <button id="saveLocalButton" title="Save Project" class="p-2 rounded-md hover:bg-gray-700">
+                             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                         </button>
+                         <button id="loadLocalButton" title="Load Project" class="p-2 rounded-md hover:bg-gray-700">
+                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                         </button>
+                     </div>
+                 </div>
+             </div>
+            <div id="main-scroll-area" class="panel-content book-prose">
+                <div id="projectHeader" class="mb-12"></div>
+                <div id="mainContent" class="space-y-8">
+                    </div>
             </div>
         </main>
+
+        <aside id="add-panel" class="panel">
+            <div class="panel-header">
+                <h2 class="text-xl font-bold">Add a Component</h2>
+            </div>
+            <div id="add-component-list" class="panel-content">
+                </div>
+        </aside>
     </div>
 
-    <!-- Hidden file inputs -->
+    <div id="mobileMessage" class="hidden lg:hidden flex-col items-center justify-center h-screen text-center p-4 bg-gray-900 text-gray-300">
+        <h2 class="text-2xl font-bold mb-2 font-serif">RPG Scenario Guide</h2>
+        <p>This application is designed for a larger screen. Please use a desktop or tablet for the best experience.</p>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-8 max-w-md w-full text-center">
+            <h3 id="confirmTitle" class="text-xl font-bold text-white mb-4">Are you sure?</h3>
+            <p id="confirmMessage" class="text-gray-300 mb-6"></p>
+            <div class="flex justify-center gap-4">
+                <button id="confirmCancelButton" class="px-6 py-2 bg-gray-600 text-white font-bold rounded-lg hover:bg-gray-500">Cancel</button>
+                <button id="confirmOkButton" class="px-6 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <input type="file" id="loadFileInput" class="hidden" accept=".json">
-    <input type="file" id="linkCampaignFileInput" class="hidden" accept=".json">
     <input type="file" id="mapImageInput" class="hidden" accept="image/*">
-    <input type="file" id="loadComponentFileInput" class="hidden" accept=".json">
-
-
-    <!-- Mobile view message -->
-    <div id="mobileMessage" class="md:hidden flex flex-col items-center justify-center h-screen text-center p-4">
-        <svg class="w-16 h-16 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-1.2 0-2.4.6-3 1.7A3.5 3.5 0 0 0 6.5 8c0 2.3 2.5 4.5 6 6.5 3.5-2 6-4.2 6-6.5a3.5 3.5 0 0 0-2.5-3.3c-.6-1.1-1.8-1.7-3-1.7Z"/><path d="m12 14-4 4h8l-4-4Z"/></svg>
-        <h2 class="text-2xl font-bold mb-2">RPG SCENARIO GUIDE</h2>
-        <p>This application is best experienced on a desktop or tablet device for the full creation workflow.</p>
-    </div>
-
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- STATE MANAGEMENT ---
             let project = {};
             let nextId = 1;
-            let currentMapComponentId = null;
-            let currentTargetComponentId = null;
-            let userApiKey = localStorage.getItem('geminiApiKey') || '';
             let activeComponentId = null;
-
-            const projectOptions = {
-                campaignGenre: ['Heroic Fantasy', 'Investigative Horror', 'Dystopian Intrigue', 'Sci-Fi Opera', 'Political Thriller', 'Other'],
-                campaignTone: ['Lighthearted', 'Gritty', 'Epic', 'Bleak', 'Mysterious', 'Other'],
-                campaignStructure: ['Linear', 'Episodic', 'Sandbox', 'Hybrid'],
-                campaignScope: ['One-Shot (1-2 Sessions)', 'Mini-Campaign (3-10 Sessions)', 'Long Campaign (10-50 Sessions)', 'Epic Campaign (50+ Sessions)'],
-                adventureGenre: ['Dungeon Crawl', 'Mystery', 'Intrigue', 'Wilderness Survival', 'Horror', 'Other'],
-                adventureStructure: ['Linear', 'Sandbox', 'Point Crawl (Hybrid)']
-            };
+            let historyStack = [];
+            let draggingItemId = null;
+            let confirmCallback = null;
+            let isFullViewActive = false;
 
             // --- DOM ELEMENTS ---
-            const projectTypeModal = document.getElementById('projectTypeModal');
-            const mainApp = document.getElementById('app');
+            const mainApp = document.getElementById('app-container');
+            const mobileMessage = document.getElementById('mobileMessage');
             const mainContent = document.getElementById('mainContent');
             const projectHeader = document.getElementById('projectHeader');
-            const modeToggle = document.getElementById('modeToggle');
-            const body = document.body;
-            const fileMenuButton = document.getElementById('fileMenuButton');
-            const fileMenu = document.getElementById('fileMenu');
-            const printPdfButton = document.getElementById('printPdfButton');
             const saveLocalButton = document.getElementById('saveLocalButton');
             const loadLocalButton = document.getElementById('loadLocalButton');
             const loadFileInput = document.getElementById('loadFileInput');
-            const loadComponentFileInput = document.getElementById('loadComponentFileInput');
-            const createNewProjectButton = document.getElementById('createNewProjectButton');
-            const linkCampaignFileInput = document.getElementById('linkCampaignFileInput');
-            const sidebarExtras = document.getElementById('sidebarExtras');
-            const componentNav = document.getElementById('componentNav');
             const mapImageInput = document.getElementById('mapImageInput');
-            const notificationModal = document.getElementById('notificationModal');
-            const notificationTitle = document.getElementById('notificationTitle');
-            const notificationMessage = document.getElementById('notificationMessage');
-            const settingsModal = document.getElementById('settingsModal');
-            const settingsButton = document.getElementById('settingsButton');
-            const apiKeyInput = document.getElementById('apiKeyInput');
-            const sidebar = document.querySelector('aside');
+            const addComponentList = document.getElementById('add-component-list');
+            const tocList = document.getElementById('toc-list');
+            const projectTitleDisplay = document.getElementById('project-title-display');
+            const undoButton = document.getElementById('undoButton');
+            const confirmModal = document.getElementById('confirmModal');
+            const confirmMessage = document.getElementById('confirmMessage');
+            const confirmOkButton = document.getElementById('confirmOkButton');
+            const confirmCancelButton = document.getElementById('confirmCancelButton');
+            const gmViewButton = document.getElementById('gmViewButton');
 
-
-            // --- FUNCTIONS ---
-
-            const showNotification = (message, title = 'Notification') => {
-                notificationTitle.textContent = title;
-                notificationMessage.textContent = message;
-                notificationModal.classList.remove('hidden');
-                notificationModal.classList.add('flex');
+            // --- HELPER FUNCTIONS (DEFINED EARLY) ---
+            const findComponentAndParent = (id, components = project.components, parent = null) => {
+                for (let i = 0; i < components.length; i++) {
+                    const component = components[i];
+                    if (component.id === id) {
+                        return { component, parent, index: i };
+                    }
+                    if (component.children) {
+                        const found = findComponentAndParent(id, component.children, component);
+                        if (found) return found;
+                    }
+                }
+                return null;
             };
 
-            window.closeNotification = () => {
-                notificationModal.classList.add('hidden');
-                notificationModal.classList.remove('flex');
-            };
-
-            window.closeSettings = () => {
-                settingsModal.classList.add('hidden');
-                settingsModal.classList.remove('flex');
+            const getAllComponents = (components) => {
+                return components.reduce((acc, comp) => {
+                    acc.push(comp);
+                    if (comp.children) {
+                        acc.push(...getAllComponents(comp.children));
+                    }
+                    return acc;
+                }, []);
             };
             
-            window.saveSettings = () => {
-                userApiKey = apiKeyInput.value;
-                localStorage.setItem('geminiApiKey', userApiKey);
-                closeSettings();
-                showNotification('API Key saved.', 'Settings Saved');
-                renderAll(); // Re-render to show/hide generate buttons
+            const findComponent = (id) => {
+                const result = findComponentAndParent(id);
+                return result ? result.component : null;
             };
 
+            // --- INITIALIZATION ---
+            function initializeApp() {
+                if (window.innerWidth < 1024) {
+                    mainApp.style.display = 'none';
+                    mobileMessage.style.display = 'flex';
+                } else {
+                    mainApp.style.display = 'grid';
+                    mobileMessage.style.display = 'none';
+                    resetProject();
+                }
+            }
+
+            // --- MODAL & HISTORY MANAGEMENT ---
+            const showConfirm = (message, callback) => {
+                confirmMessage.textContent = message;
+                confirmCallback = callback;
+                confirmModal.classList.remove('hidden');
+                confirmModal.classList.add('flex');
+            };
+
+            const closeConfirm = () => {
+                confirmModal.classList.add('hidden');
+                confirmModal.classList.remove('flex');
+                confirmCallback = null;
+            };
+
+            const saveStateToHistory = () => {
+                historyStack.push(structuredClone(project));
+                if (historyStack.length > 20) historyStack.shift();
+                updateUndoButtonState();
+            };
+
+            const undoLastAction = () => {
+                if (historyStack.length > 0) {
+                    project = historyStack.pop();
+                    nextId = Math.max(0, ...getAllComponents(project.components).map(c => c.id)) + 1 || 1;
+                    if (!getAllComponents(project.components).some(c => c.id === activeComponentId)) {
+                        activeComponentId = project.components.length > 0 ? project.components[0].id : null;
+                    }
+                    renderAll();
+                }
+            };
+
+            const updateUndoButtonState = () => {
+                if (undoButton) undoButton.disabled = historyStack.length === 0;
+            };
+
+            // --- PROJECT & COMPONENT LOGIC ---
             const resetProject = () => {
                 project = {
-                    type: null, title: '', pitch: '', synopsis: '',
-                    genre: '', tone: '', scope: '', structure: '', components: [],
-                    linkedCampaign: null
+                    title: 'New Project',
+                    pitch: 'A brief, one-paragraph pitch for the campaign or adventure.',
+                    components: []
                 };
                 nextId = 1;
                 activeComponentId = null;
-            };
-
-            const hideAllModals = () => {
-                projectTypeModal.classList.add('hidden');
-                projectTypeModal.classList.remove('flex');
-                mainApp.classList.remove('hidden');
-                mainApp.classList.add('md:grid');
-            };
-
-            window.startProject = (type) => {
-                resetProject();
-                project.type = type;
-                if (type === 'campaign') {
-                    project.title = 'New Campaign';
-                    project.pitch = '';
-                    project.genre = '';
-                    project.tone = '';
-                    project.structure = '';
-                    project.scope = '';
-                } else { // adventure
-                    project.title = 'New Adventure';
-                    project.synopsis = '';
-                    project.genre = '';
-                    project.structure = '';
-                }
-                hideAllModals();
+                historyStack = [];
+                isFullViewActive = false;
                 renderAll();
             };
 
-            // --- EVENT LISTENERS ---
-            if(modeToggle) modeToggle.addEventListener('change', (e) => {
-                body.classList.toggle('gm-mode', e.target.checked);
-                body.classList.toggle('writer-mode', !e.target.checked);
-                renderAll();
-            });
-
-            if(createNewProjectButton) createNewProjectButton.addEventListener('click', () => {
-                mainApp.classList.add('hidden');
-                mainApp.classList.remove('md:grid');
-                projectTypeModal.classList.remove('hidden');
-                projectTypeModal.classList.add('flex');
-            });
-
-            if(settingsButton) settingsButton.addEventListener('click', () => {
-                apiKeyInput.value = userApiKey;
-                settingsModal.classList.remove('hidden');
-                settingsModal.classList.add('flex');
-            });
-
-            if(projectHeader) {
-                projectHeader.addEventListener('input', (e) => {
-                    if (e.target && e.target.dataset.key) {
-                        const key = e.target.dataset.key;
-                        project[key] = e.target.value;
-                    }
-                });
-
-                projectHeader.addEventListener('click', (e) => {
-                    if(body.classList.contains('writer-mode') && e.target.matches('[data-editable-tag]')) {
-                        const key = e.target.dataset.key;
-                        const optionsKey = `${project.type}${key.charAt(0).toUpperCase() + key.slice(1)}`;
-                        const options = projectOptions[optionsKey] || [];
-                        if (options.length === 0) return;
-
-                        const currentValue = project[key];
-                        const currentIndex = options.indexOf(currentValue);
-                        const nextIndex = (currentIndex + 1) % options.length;
-                        project[key] = options[nextIndex];
-                        renderProjectHeader();
-                    }
-                });
-            }
-
-            // Sidebar hover expand/collapse
-            if (sidebar) {
-                sidebar.addEventListener('mouseenter', () => {
-                    mainApp.classList.add('sidebar-hovered');
-                });
-                sidebar.addEventListener('mouseleave', () => {
-                    mainApp.classList.remove('sidebar-hovered');
-                });
-            }
-
-
-            // --- FILE MENU LOGIC ---
-            if(fileMenuButton) fileMenuButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                fileMenu.classList.toggle('hidden');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (fileMenu && !fileMenu.classList.contains('hidden')) {
-                    fileMenu.classList.add('hidden');
-                }
-                const pinDropdown = document.querySelector('.pin-linking-dropdown');
-                if (pinDropdown && !pinDropdown.contains(e.target)) {
-                    pinDropdown.remove();
-                }
-            });
-
-            if(printPdfButton) printPdfButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                window.print();
-                fileMenu.classList.add('hidden');
-            });
-
-            if(saveLocalButton) saveLocalButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                 if (!project.type) {
-                    showNotification("Please create or load a project first.", "Project Required");
-                    return;
-                }
-                const dataStr = JSON.stringify(project, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(dataBlob);
-                const link = document.createElement('a');
-                const safeTitle = project.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                link.download = `${safeTitle || 'rpg-scenario-project'}.json`;
-                link.href = url;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-                fileMenu.classList.add('hidden');
-            });
-
-            if(loadLocalButton) loadLocalButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                loadFileInput.click();
-                fileMenu.classList.add('hidden');
-            });
-
-            if(loadFileInput) loadFileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    try {
-                        const loadedData = JSON.parse(event.target.result);
-                        if (loadedData && typeof loadedData === 'object' && loadedData.hasOwnProperty('components')) {
-                            project = loadedData;
-                            if (!project.linkedCampaign) project.linkedCampaign = null;
-                            nextId = Math.max(0, ...project.components.map(c => c.id)) + 1 || 1;
-                            activeComponentId = project.components.length > 0 ? project.components[0].id : null;
-                            hideAllModals();
-                            renderAll();
-                        } else {
-                            showNotification('Invalid project file format.');
-                        }
-                    } catch (error) {
-                        console.error("Error parsing file:", error);
-                        showNotification('Failed to load file. It might be corrupted or not a valid JSON file.');
-                    }
-                };
-                reader.readAsText(file);
-                e.target.value = ''; // Reset input
-            });
-
-            if(loadComponentFileInput) loadComponentFileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file || currentTargetComponentId === null) return;
-
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    try {
-                        const loadedData = JSON.parse(event.target.result);
-                        if (loadedData && loadedData.type && loadedData.data) {
-                            const targetComponent = project.components.find(c => c.id === currentTargetComponentId);
-                            if (targetComponent) {
-                                targetComponent.type = loadedData.type;
-                                targetComponent.data = loadedData.data;
-                                renderAll();
-                            }
-                        } else {
-                            showNotification('Invalid component file format.');
-                        }
-                    } catch (error) {
-                        console.error("Error parsing component file:", error);
-                        showNotification('Failed to load component file.');
-                    } finally {
-                        currentTargetComponentId = null;
-                        e.target.value = '';
-                    }
-                };
-                reader.readAsText(file);
-            });
-
-            if(sidebarExtras) sidebarExtras.addEventListener('click', (e) => {
-                 if (e.target.matches('#linkCampaignButton')) {
-                     linkCampaignFileInput.click();
-                 }
-                 if (e.target.matches('#unlinkCampaignButton')) {
-                     project.linkedCampaign = null;
-                     renderAll();
-                 }
-            });
-
-            if(linkCampaignFileInput) linkCampaignFileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    try {
-                        const loadedData = JSON.parse(event.target.result);
-                        if (loadedData && loadedData.type === 'campaign') {
-                            project.linkedCampaign = loadedData;
-                            renderAll();
-                        } else {
-                            showNotification('Invalid file. Please select a valid campaign JSON file.');
-                        }
-                    } catch (error) {
-                        console.error("Error parsing campaign file:", error);
-                        showNotification('Failed to load campaign file.');
-                    }
-                };
-                reader.readAsText(file);
-                e.target.value = ''; // Reset input
-            });
-
-
-            // --- COMPONENT LOGIC ---
-            window.addComponent = (type) => {
-                if (!project.type) {
-                    showNotification("Please create a new project first by clicking the '+' button.", "Project Required");
-                    return;
-                }
-                const newComponent = { id: nextId++, type: type, data: getTemplateForType(type) };
+            const addComponent = (type) => {
+                saveStateToHistory();
+                const newComponent = { id: nextId++, type, data: getTemplateForType(type), children: [] };
                 project.components.push(newComponent);
-
-                if (type === 'faction' && !project.components.some(c => c.type === 'faction_overview')) {
-                    project.components.push({ id: nextId++, type: 'faction_overview', data: getTemplateForType('faction_overview') });
-                }
-                if (type === 'clue' && !project.components.some(c => c.type === 'clue_tracker')) {
-                    project.components.push({ id: nextId++, type: 'clue_tracker', data: getTemplateForType('clue_tracker') });
-                }
-                
                 activeComponentId = newComponent.id;
-                renderAll();
-            };
-            
-            window.deleteComponent = (id) => {
-                project.components = project.components.filter(c => c.id !== id);
-                if (activeComponentId === id) {
-                    activeComponentId = null;
-                }
+                isFullViewActive = false;
                 renderAll();
             };
 
-            window.saveComponent = (id) => {
-                const component = project.components.find(c => c.id === id);
-                if (!component) return;
-                const form = document.querySelector(`[data-id='${id}']`);
-                const inputs = form.querySelectorAll('input, textarea, select, [data-asset-checkbox]');
+            const deleteComponent = (id) => {
+                saveStateToHistory();
                 
-                if (component.type === 'session') {
-                    component.data.planned_assets = [];
-                    inputs.forEach(input => {
-                        if (input.dataset.key) {
-                            component.data[input.dataset.key] = input.value;
+                const removeRecursively = (components, targetId) => {
+                    for (let i = components.length - 1; i >= 0; i--) {
+                        if (components[i].id === targetId) {
+                            components.splice(i, 1);
+                            return true;
                         }
-                        if (input.matches('[data-asset-checkbox]') && input.checked) {
-                            component.data.planned_assets.push(parseInt(input.value));
+                        if (components[i].children && removeRecursively(components[i].children, targetId)) {
+                            return true;
                         }
-                    });
-                } else {
-                    inputs.forEach(input => {
-                        if (input.dataset.key) {
-                             component.data[input.dataset.key] = input.value;
-                        }
-                    });
+                    }
+                    return false;
+                };
+
+                removeRecursively(project.components, id);
+
+                if (activeComponentId === id) {
+                    activeComponentId = project.components.length > 0 ? project.components[0].id : null;
+                    isFullViewActive = false;
                 }
                 renderAll();
-            };
-
-            window.saveSingleComponent = (id) => {
-                const component = project.components.find(c => c.id === id);
-                if (!component) return;
-
-                const dataStr = JSON.stringify(component, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(dataBlob);
-                const link = document.createElement('a');
-                const safeName = (component.data.name || 'untitled').replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                link.download = `${safeName}.${component.type}.json`;
-                link.href = url;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-            };
-
-            window.triggerLoadSingleComponent = (id) => {
-                currentTargetComponentId = id;
-                loadComponentFileInput.click();
             };
 
             const getTemplateForType = (type) => {
-                switch (type) {
-                    case 'session': return { name: 'New Session', date: new Date().toISOString().slice(0, 10), summary: '', log: '', planned_assets: [] };
-                    case 'story_arc': return { name: 'New Story Arc', summary: '', goal: '', key_antagonist: '', resolution: '' };
-                    case 'adventure': return { name: 'New Adventure', hook: '', goal: '', stakes: '', resolution: '' };
-                    case 'npc': return { name: 'New NPC', role: 'Quest Giver', motivation: 'Wants to acquire wealth.', description: '', dialogue: '', secrets_agenda: 'Secretly works for the thieves guild.', history: '' };
-                    case 'location': return { name: 'New Location', type: 'City', description: '', atmosphere: '', key_features: '', inhabitants: '', secrets: 'A hidden smuggler\'s tunnel is beneath the tavern.', suggested_encounters: '' };
-                    case 'map': return { name: 'New Map', imageUrl: '', pins: [] };
-                    case 'faction': return { name: 'New Faction', goals: 'Gain political control of the city.', ideology: '', key_members: '', resources: '', relationships: 'Allies: The City Guard\nRivals: The Shadow Syndicate' };
-                    case 'faction_overview': return { name: 'Faction Relationship Overview' };
-                    case 'encounter': return { name: 'New Encounter', type: 'Combat', description: '', setup: '', resolution: '' };
-                    case 'item': return { name: 'Special Item', rarity: 'Uncommon', description: '', properties: '', attunement: 'No', backstory: '' };
-                    case 'clue': return { name: 'New Clue', type: 'Physical Object', information: '', location_found: '', conclusion: 'The butler is the killer.' };
-                    case 'clue_tracker': return { name: 'Clue Tracker' };
-                    default: return { name: 'New Component' };
-                }
-            };
-            
-            // --- RENDER FUNCTIONS ---
-            const updateComponentNavState = () => {
-                if (!project.type) {
-                    componentNav.classList.add('disabled');
-                } else {
-                    componentNav.classList.remove('disabled');
-                }
+                const templates = {
+                    'Story Arc': { name: 'New Story Arc', summary: '', goal: '', key_antagonist: '', resolution: '' },
+                    'Adventure': { name: 'New Adventure', hook: '', goal: '', stakes: '', resolution: '' },
+                    'NPC': { name: 'New NPC', role: 'Quest Giver', motivation: 'To acquire wealth.', description: 'A brief description of their appearance and demeanor.' },
+                    'Location': { name: 'New Location', type: 'City', description: '', atmosphere: '', secrets: '' },
+                    'Faction': { name: 'New Faction', goals: 'Gain political control.', ideology: '', key_members: '' },
+                    'Encounter': { name: 'New Encounter', type: 'Combat', description: '', setup: '', resolution: '' },
+                    'Item': { name: 'Special Item', rarity: 'Uncommon', description: '', properties: '' },
+                    'Clue': { name: 'New Clue', information: '', location_found: '', conclusion: '' },
+                    'Map': { name: 'New Map', description: '', imageUrl: null },
+                };
+                return templates[type] || { name: `New ${type}` };
             };
 
+            // --- RENDER FUNCTIONS ---
             const renderAll = () => {
-                updateComponentNavState();
+                updateUndoButtonState();
                 renderProjectHeader();
+                renderTableOfContents();
+                renderAddComponentSidebar();
                 renderActiveComponent();
-                renderSidebarExtras();
-                renderSidebarNav();
+                projectTitleDisplay.textContent = project.title || 'Untitled Project';
             };
 
             const renderProjectHeader = () => {
-                if (!project.type) {
-                    projectHeader.innerHTML = '';
-                    return;
-                }
-
-                const isCampaign = project.type === 'campaign';
-                const pitchLabel = isCampaign ? 'Campaign Pitch' : 'Adventure Synopsis';
-                const pitchKey = isCampaign ? 'pitch' : 'synopsis';
-                const pitchValue = project[pitchKey] || '';
-                const tagsToRender = isCampaign ? 
-                    { genre: 'Genre', tone: 'Tone', structure: 'Structure', scope: 'Scope' } : 
-                    { genre: 'Genre', structure: 'Structure' };
-                
-                const tagColorClasses = {
-                    genre: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-                    tone: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-                    structure: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-                    scope: 'bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200'
-                };
-
-                let tagsHTML = '';
-                for (const [key, label] of Object.entries(tagsToRender)) {
-                    const value = project[key] || `-Choose ${label}-`;
-                    tagsHTML += `<span data-editable-tag data-key="${key}" class="editable-tag inline-block px-3 py-1 text-sm font-semibold rounded-full ${tagColorClasses[key] || 'bg-gray-200 text-gray-800'} mr-2 mb-2">${value}</span>`;
-                }
-                
-                const writerHeader = `
-                    <div class="space-y-4">
-                        <div>
-                            <label for="projectTitleInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
-                            <input type="text" id="projectTitleInput" data-key="title" value="${project.title}" placeholder="Enter your project's title" class="mt-1 block w-full p-2 text-2xl font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label for="projectPitchInput" class="block text-sm font-medium text-gray-700 dark:text-gray-300">${pitchLabel}</label>
-                            <textarea id="projectPitchInput" data-key="${pitchKey}" placeholder="Enter a one-paragraph pitch or synopsis..." class="mt-1 block w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 prose-style" rows="3">${pitchValue}</textarea>
-                        </div>
-                        <div class="flex flex-wrap gap-2 mt-4">
-                            ${tagsHTML}
-                        </div>
-                    </div>`;
-
-                const gmHeader = `
-                    <div>
-                        <h2 class="text-4xl font-bold text-gray-800 dark:text-white mb-2">${project.title || 'Untitled Project'}</h2>
-                        <p class="prose-style text-lg text-gray-600 dark:text-gray-400 italic my-4">${pitchValue || 'No pitch or synopsis provided.'}</p>
-                        <div class="flex flex-wrap gap-2 mt-4">
-                            ${tagsHTML}
-                        </div>
+                const headerContent = `
+                    <div class="editable-content">
+                        <input type="text" data-key="title" value="${project.title}" placeholder="Project Title" class="text-4xl font-bold w-full bg-transparent border-b-2 border-transparent focus:border-gray-600 outline-none pb-2 transition-colors">
+                        <textarea data-key="pitch" placeholder="Project Pitch..." class="book-prose text-lg w-full bg-transparent border-b-2 border-transparent focus:border-gray-600 outline-none p-2 mt-4" rows="3">${project.pitch}</textarea>
+                    </div>
+                    <div class="viewable-content">
+                        <h1 class="text-4xl font-bold mb-4">${project.title}</h1>
+                        <p class="book-prose text-lg italic text-gray-400">${project.pitch}</p>
                     </div>
                 `;
-
-                projectHeader.innerHTML = `
-                    <div class="editable">${writerHeader}</div>
-                    <div class="viewable">${gmHeader}</div>
-                `;
+                projectHeader.innerHTML = headerContent;
             };
 
-            const renderSidebarExtras = () => {
-                sidebarExtras.innerHTML = '';
-                if (project.type === 'adventure') {
-                    let buttonHTML = '';
-                    if (project.linkedCampaign) {
-                        buttonHTML = `<button id="unlinkCampaignButton" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"/></svg>
-                            <span class="sidebar-text">Unlink Campaign</span>
-                        </button>`;
-                    } else {
-                        buttonHTML = `<button id="linkCampaignButton" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-200 hover:bg-teal-200 dark:hover:bg-teal-800 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"/></svg>
-                            <span class="sidebar-text">Link Campaign</span>
-                        </button>`;
-                    }
-                    sidebarExtras.innerHTML = `<h3 class="px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-4 sidebar-text">Campaign</h3>${buttonHTML}`;
-                }
-            };
-
-            const renderSidebarNav = () => {
-                componentNav.innerHTML = '';
-                if (!project.type) {
-                    componentNav.classList.add('disabled');
+            const renderTableOfContents = () => {
+                tocList.innerHTML = '';
+                if (project.components.length === 0) {
+                    tocList.innerHTML = `<p class="text-sm text-gray-400 px-1">Your components will appear here.</p>`;
                     return;
                 }
-                componentNav.classList.remove('disabled');
 
-                const componentGroups = {
-                    session: { label: 'Sessions', icon: `<svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M-4.5 12h22.5" /></svg>` },
-                    story_arc: { label: 'Story Arcs', icon: `<svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 6H3"/><path d="M21 12H3"/><path d="M21 18H3"/></svg>` },
-                    adventure: { label: 'Adventures', icon: `<svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m13.29 13.29-4.6 4.6a2 2 0 1 0 2.83 2.83l4.6-4.6a2 2 0 0 0 0-2.83l-4.6-4.6a2 2 0 1 0-2.83 2.83z"/><path d="M10.59 10.59 7.76 7.76"/><path d="m16.24 7.76-2.83 2.83"/></svg>` },
-                    npc: { label: 'NPCs', icon: `<svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="4"/><path d="M18 11a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2z"/></svg>` },
-                    location: { label: 'Locations', icon: `<svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>` },
-                    map: { label: 'Maps', icon: `<svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m0 0v2.25m0-2.25h1.5m-1.5 0H8.25m.75 2.25h1.5m-1.5 0H8.25m6.75-3.75h1.5m-1.5 0h-1.5m-1.5 0H15m1.5 0v-1.5m0 1.5v-1.5m0 0H15m-1.5 0h-1.5m1.5 0H15m6.75-3.75v-1.5m0 1.5v-1.5m0 0h-1.5m1.5 0h-1.5m0 0H15m-7.5 7.5h1.5m-1.5 0H8.25m1.5 0v-1.5m0 1.5v-1.5m0 0h-1.5m1.5 0h-1.5m0 0H15m-7.5 0h1.5m-1.5 0H8.25m1.5 0v-1.5m0 1.5v-1.5m0 0h-1.5m1.5 0h-1.5m0 0H15" /></svg>` },
-                    faction: { label: 'Factions', icon: `<svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>` },
-                    encounter: { label: 'Encounters', icon: `<svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m13.29 13.29-4.6 4.6a2 2 0 1 0 2.83 2.83l4.6-4.6a2 2 0 0 0 0-2.83l-4.6-4.6a2 2 0 1 0-2.83 2.83z"/><path d="M10.59 10.59 7.76 7.76"/><path d="m16.24 7.76-2.83 2.83"/></svg>` },
-                    item: { label: 'Special Items', icon: `<svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 13V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4"/><path d="M14 22h6a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2Z"/></svg>` },
-                    clue: { label: 'Clues', icon: `<svg class="sidebar-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="11.5" cy="14.5" r="2.5"/><path d="M13.25 16.25 15 18"/></svg>` },
+                const renderItems = (components, level = 0) => {
+                    components.forEach((component) => {
+                        const itemContainer = document.createElement('div');
+                        itemContainer.className = 'toc-item-container';
+                        
+                        const item = document.createElement('div');
+                        item.className = `toc-item ${component.id === activeComponentId && !isFullViewActive ? 'active' : ''}`;
+                        item.dataset.id = component.id;
+                        item.draggable = true;
+                        
+                        const itemContent = document.createElement('div');
+                        itemContent.className = 'toc-item-content';
+                        itemContent.style.setProperty('--level', level);
+                        itemContent.innerHTML = `
+                            <span class="handle text-gray-500">⠿</span>
+                            <span class="truncate">${component.data.name}</span>
+                        `;
+
+                        item.appendChild(itemContent);
+                        itemContainer.appendChild(item);
+                        tocList.appendChild(itemContainer);
+
+                        if (component.children && component.children.length > 0) {
+                            const childrenContainer = document.createElement('div');
+                            childrenContainer.className = 'toc-children-container relative';
+                            const line = document.createElement('div');
+                            line.className = 'nesting-line';
+                            childrenContainer.appendChild(line);
+                            renderItems(component.children, level + 1).forEach(childEl => childrenContainer.appendChild(childEl));
+                            itemContainer.appendChild(childrenContainer);
+                        }
+                    });
+                    return components.map(c => tocList.querySelector(`[data-id='${c.id}']`).parentElement);
                 };
-
-                const groupedComponents = project.components.reduce((acc, comp) => {
-                    const type = comp.type;
-                    if (!acc[type]) {
-                        acc[type] = [];
-                    }
-                    acc[type].push(comp);
-                    return acc;
-                }, {});
-
-                for (const [type, {label, icon}] of Object.entries(componentGroups)) {
-                    const details = document.createElement('details');
-                    const summary = document.createElement('summary');
-                    summary.className = 'w-full flex items-center justify-between gap-3 px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-300 transition-colors list-none';
-                    
-                    const summaryContent = document.createElement('div');
-                    summaryContent.className = 'flex items-center gap-3';
-                    summaryContent.innerHTML = `${icon}<span class="sidebar-text font-semibold">${label}</span>`;
-                    
-                    const addButton = document.createElement('button');
-                    addButton.className = 'add-component-btn sidebar-text p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600';
-                    addButton.title = `Add ${label}`;
-                    addButton.dataset.type = type;
-                    addButton.innerHTML = `<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" /></svg>`;
-                    
-                    summary.appendChild(summaryContent);
-                    summary.appendChild(addButton);
-                    details.appendChild(summary);
-
-                    const componentsOfType = groupedComponents[type] || [];
-                    if (componentsOfType.length > 0) {
-                        const sublist = document.createElement('div');
-                        sublist.className = 'pl-8 mt-1 space-y-1';
-                        componentsOfType.forEach(c => {
-                            const link = document.createElement('a');
-                            link.href = '#';
-                            link.className = `sidebar-component-link w-full flex items-center gap-3 px-3 py-1 rounded-md text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${c.id === activeComponentId ? 'active' : ''}`;
-                            link.dataset.id = c.id;
-                            link.innerHTML = `<span class="sidebar-text truncate">${c.data.name || 'Untitled'}</span>`;
-                            sublist.appendChild(link);
-                        });
-                        details.appendChild(sublist);
-                    }
-                    componentNav.appendChild(details);
-                }
+                renderItems(project.components);
             };
-            
-            componentNav.addEventListener('click', (e) => {
-                const addButton = e.target.closest('.add-component-btn');
-                if (addButton) {
-                    e.preventDefault();
-                    addComponent(addButton.dataset.type);
-                    return;
-                }
 
-                const componentLink = e.target.closest('.sidebar-component-link');
-                if (componentLink) {
-                    e.preventDefault();
-                    activeComponentId = parseInt(componentLink.dataset.id);
-                    renderAll();
-                    return;
-                }
-
-                const summary = e.target.closest('summary');
-                if (summary) {
-                    const details = summary.parentElement;
-                    if (details.hasAttribute('open')) {
-                        details.removeAttribute('open');
-                    } else {
-                        details.setAttribute('open', '');
-                    }
-                }
-            });
-
+            const renderAddComponentSidebar = () => {
+                const componentTypes = ['Story Arc', 'Adventure', 'NPC', 'Location', 'Faction', 'Encounter', 'Item', 'Clue', 'Map'];
+                addComponentList.innerHTML = componentTypes.map(type => `
+                    <button class="add-component-btn" data-type="${type}">${type}</button>
+                `).join('');
+            };
 
             const renderActiveComponent = () => {
                 mainContent.innerHTML = '';
-                if (!activeComponentId) {
-                     mainContent.innerHTML = `
-                        <div class="text-center py-16 px-6 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H7a2 2 0 00-2 2v2m14 0l-2 2m-2-2l2 2m-7-2v6m-3-3h6" /></svg>
-                            <h3 class="mt-2 text-lg font-medium text-gray-900 dark:text-white">Select a component</h3>
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Choose a component from the sidebar to view or edit it.</p>
-                        </div>`;
+                if (isFullViewActive) {
+                    renderAllComponentsView();
                     return;
                 }
 
-                const component = project.components.find(c => c.id === activeComponentId);
-                if (component) {
-                    const componentElement = document.createElement('div');
-                    if (component.type === 'story_arc') {
-                        componentElement.className = 'story-arc-card';
-                    } else {
-                        componentElement.className = 'bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700';
-                    }
-                    componentElement.setAttribute('data-id', component.id);
-                    componentElement.innerHTML = `
-                        ${renderComponentHeader(component)}
-                        <div class="mt-4">
-                            ${renderWriterView(component)}
-                            ${renderGmView(component)}
-                        </div>
-                    `;
-                    mainContent.appendChild(componentElement);
+                const activeInfo = findComponentAndParent(activeComponentId);
+                if (!activeInfo) {
+                    mainContent.innerHTML = `<div class="text-center text-gray-500 py-16">Select a component from the Table of Contents to begin.</div>`;
+                    return;
                 }
-            };
+                const { component, parent, index } = activeInfo;
 
-            const renderComponentHeader = (component) => {
-                const typeName = component.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                const textColor = component.type === 'story_arc' ? 'text-white' : 'text-gray-800 dark:text-white';
-                return `
-                    <div class="flex justify-between items-center ${component.type !== 'story_arc' ? 'pb-3 border-b border-gray-200 dark:border-gray-700' : ''}">
-                        <div>
-                            <h3 class="text-2xl font-bold ${textColor}">${component.data.name || 'Untitled'}</h3>
-                            <span class="text-xs font-semibold uppercase ${component.type === 'story_arc' ? 'text-blue-300' : 'text-gray-500 dark:text-gray-400'}">${typeName}</span>
-                        </div>
-                        <div class="editable no-print flex items-center gap-2">
-                             <button onclick="saveSingleComponent(${component.id})" class="text-sm bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Save Comp</button>
-                             <button onclick="triggerLoadSingleComponent(${component.id})" class="text-sm bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Load Comp</button>
-                             <button onclick="saveComponent(${component.id})" class="text-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Save</button>
-                             <button onclick="deleteComponent(${component.id})" class="ml-2 text-sm bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md transition-colors">Delete</button>
-                        </div>
-                    </div>
-                `;
-            };
+                const card = document.createElement('div');
+                card.className = 'component-card';
+                card.dataset.id = component.id;
 
-            const renderWriterView = (component) => {
-                let fields = '';
-                 if (component.type === 'map') {
-                    fields = `
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Map Name</label>
-                            <input type="text" data-key="name" value="${component.data.name}" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                let fieldsHTML = '';
+                if (component.type === 'Map') {
+                     fieldsHTML = `
+                        <div class="editable-content">
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-500 mb-1">Name</label>
+                                <input type="text" data-key="name" value="${component.data.name}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">
+                            </div>
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-500 mb-1">Description</label>
+                                <textarea data-key="description" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">${component.data.description || ''}</textarea>
+                            </div>
+                            <button data-action="uploadMap" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-md text-white">Upload Map Image</button>
                         </div>
-                        <div>
-                            <button id="uploadMapButton" data-id="${component.id}" class="mt-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700">Upload Map Image</button>
+                        <div class="viewable-content">
+                            <p class="book-prose mt-1">${component.data.description || ''}</p>
                         </div>
+                        ${component.data.imageUrl ? `<div class="mt-4 map-container"><img src="${component.data.imageUrl}"></div>` : ''}
                     `;
-                    if (component.data.imageUrl) {
-                        fields += `<img src="${component.data.imageUrl}" class="mt-4 rounded-lg border border-gray-300 dark:border-gray-700 max-w-full h-auto">`;
-                    }
-                } else if (component.type === 'session') {
-                    let assetOptions = '';
-                    project.components.forEach(c => {
-                        if (c.type !== 'session') {
-                            const isChecked = component.data.planned_assets.includes(c.id) ? 'checked' : '';
-                            assetOptions += `
-                                <label class="flex items-center space-x-3 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
-                                    <input type="checkbox" data-asset-checkbox value="${c.id}" ${isChecked} class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                                    <span>${c.data.name} <span class="text-xs text-gray-500">(${c.type})</span></span>
-                                </label>
-                            `;
-                        }
-                    });
-
-                    fields = `
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Session Name</label>
-                            <input type="text" data-key="name" value="${component.data.name}" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                            <input type="date" data-key="date" value="${component.data.date}" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Session Summary / Recap</label>
-                            <textarea data-key="summary" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 prose-style" rows="4">${component.data.summary}</textarea>
-                        </div>
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Live Session Log</label>
-                            <textarea data-key="log" class="w-full p-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 prose-style" rows="6">${component.data.log}</textarea>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Asset Planner</label>
-                            <div class="asset-planner bg-gray-50 dark:bg-gray-700">${assetOptions}</div>
-                        </div>
-                    `;
-                } else if (component.type === 'faction_overview' || component.type === 'clue_tracker') {
-                    fields = `<p class="text-gray-600 dark:text-gray-400">This component automatically displays an overview in GM Mode. No editable fields are needed.</p>`;
-                }
-                else {
+                } else {
                     for (const key in component.data) {
-                        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        const labelColor = component.type === 'story_arc' ? 'text-gray-300' : 'text-gray-700 dark:text-gray-300';
-                        const inputBg = component.type === 'story_arc' ? 'bg-gray-800' : 'bg-gray-50 dark:bg-gray-700';
-                        const inputBorder = component.type === 'story_arc' ? 'border-gray-600' : 'border-gray-300 dark:border-gray-600';
+                        const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
                         const value = component.data[key];
+                        const isTextArea = ['summary', 'description', 'pitch', 'hook', 'stakes', 'resolution', 'motivation', 'atmosphere', 'secrets', 'goals', 'ideology', 'key_members', 'setup', 'properties', 'information', 'conclusion'].includes(key);
+                        
+                        fieldsHTML += `
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-500 mb-1">${label}</label>
+                                <div class="editable-content">
+                                    ${isTextArea 
+                                        ? `<textarea data-key="${key}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">${value}</textarea>`
+                                        : `<input type="text" data-key="${key}" value="${value}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">`
+                                    }
+                                </div>
+                                <p class="viewable-content book-prose mt-1">${String(value).replace(/\n/g, '<br>')}</p>
+                            </div>
+                        `;
+                    }
+                }
+                
+                const parentArray = parent ? parent.children : project.components;
+                const canIndent = index > 0;
+                const canOutdent = parent !== null;
 
-                        let generateButton = '';
-                        const generativeKeys = ['motivation', 'description', 'atmosphere', 'hook', 'stakes', 'resolution', 'properties', 'dialogue', 'suggested_encounters', 'backstory'];
-                        if (userApiKey && generativeKeys.includes(key)) {
-                             generateButton = `<button class="generate-btn text-xs px-2 py-1 rounded-md ml-2" data-component-id="${component.id}" data-field-key="${key}">✨ Generate</button>`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold">${component.data.name}</h2>
+                            <div class="editable-control flex items-center gap-2 mt-2">
+                                <button data-action="outdent" title="Outdent Component" class="nest-control-button p-1 hover:bg-gray-700 rounded-md" ${!canOutdent ? 'disabled' : ''}>
+                                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </button>
+                                <button data-action="indent" title="Indent Component" class="nest-control-button p-1 hover:bg-gray-700 rounded-md" ${!canIndent ? 'disabled' : ''}>
+                                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12.75 15l3-3m0 0l-3-3m3 3h-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <button data-action="deleteComponent" class="editable-control text-sm text-red-500 hover:text-red-400 transition-colors">Delete Component</button>
+                    </div>
+                    ${fieldsHTML}
+                `;
+                mainContent.appendChild(card);
+            };
+
+            const renderAllComponentsView = () => {
+                let html = '';
+                const traverseAndRender = (components, level = 0) => {
+                    components.forEach(component => {
+                        let fieldsHTML = '';
+                        for (const key in component.data) {
+                            if (key === 'name') continue;
+                            const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
+                            const value = String(component.data[key]).replace(/\n/g, '<br>');
+                            fieldsHTML += `<div class="mb-4"><h4 class="font-bold text-gray-400">${label}</h4><p class="book-prose">${value}</p></div>`;
                         }
                         
-                        const labelHTML = `<div class="flex justify-between items-center"><label class="block text-sm font-medium ${labelColor} mb-1">${label}</label>${generateButton}</div>`;
-
-
-                        if (key === 'rarity') {
-                            fields += `<div>${labelHTML}<select data-key="${key}" class="w-full p-2 ${inputBg} border ${inputBorder} rounded-md focus:ring-blue-500 focus:border-blue-500"><option>Common</option><option>Uncommon</option><option>Rare</option><option>Very Rare</option><option>Legendary</option></select></div>`;
-                            const select = document.createElement('div');
-                            select.innerHTML = fields;
-                            select.querySelector('select').value = value;
-                            fields = select.innerHTML;
-                            continue;
-                        }
-                         if (key === 'attunement') {
-                            fields += `<div>${labelHTML}<select data-key="${key}" class="w-full p-2 ${inputBg} border ${inputBorder} rounded-md focus:ring-blue-500 focus:border-blue-500"><option>Yes</option><option>No</option></select></div>`;
-                            const select = document.createElement('div');
-                            select.innerHTML = fields;
-                            select.querySelector('select').value = value;
-                            fields = select.innerHTML;
-                            continue;
-                        }
-
-                        if (['summary', 'description', 'properties', 'setup', 'resolution', 'goals', 'relationships', 'hook', 'stakes', 'secrets_agenda', 'history', 'atmosphere', 'key_features', 'inhabitants', 'secrets', 'ideology', 'resources', 'information', 'conclusion', 'dialogue', 'suggested_encounters', 'backstory'].includes(key)) {
-                            fields += `<div>${labelHTML}<textarea data-key="${key}" class="w-full p-2 ${inputBg} border ${inputBorder} rounded-md focus:ring-blue-500 focus:border-blue-500 prose-style" rows="4">${value}</textarea></div>`;
-                        } else {
-                             fields += `<div>${labelHTML}<input type="text" data-key="${key}" value="${value}" class="w-full p-2 ${inputBg} border ${inputBorder} rounded-md focus:ring-blue-500 focus:border-blue-500"></div>`;
-                        }
-                    }
-                }
-                return `<div class="editable space-y-4">${fields}</div>`;
-            };
-
-            const renderGmView = (component) => {
-                const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const linkify = (text, currentComponentId) => {
-                    let linkedText = text;
-                    project.components.forEach(c => {
-                        if (c.id !== currentComponentId && c.data.name) {
-                            const nameRegex = new RegExp(`\\b${escapeRegExp(c.data.name)}\\b`, 'gi');
-                            linkedText = linkedText.replace(nameRegex, `<a href="#" class="component-link" data-link-id="${c.id}">${c.data.name}</a>`);
-                        }
-                    });
-                    return linkedText;
-                }
-
-                if (component.type === 'map') {
-                    if (!component.data.imageUrl) return `<div class="viewable text-center p-8 border-2 border-dashed rounded-lg">Please upload a map image in Writer Mode.</div>`;
-                    let pinsHTML = '';
-                    if (component.data.pins) {
-                        component.data.pins.forEach(pin => {
-                            pinsHTML += `
-                                <svg class="map-pin" data-link-id="${pin.linkedComponentId}" style="left: ${pin.x}%; top: ${pin.y}%;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ef4444">
-                                    <title>${pin.linkedComponentName}</title>
-                                    <path fill-rule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 005.16-4.212 15.092 15.092 0 002.557-6.75c0-4.192-3.4-7.59-7.5-7.5s-7.5 3.398-7.5 7.5c0 2.664 1.443 5.09 3.667 6.479A16.975 16.975 0 0011.54 22.35zM12 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" clip-rule="evenodd" />
-                                </svg>
-                            `;
-                        });
-                    }
-                    return `
-                        <div class="viewable">
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">Click on the map to add a new pin.</p>
-                            <div class="map-container rounded-lg border border-gray-300 dark:border-gray-700">
-                                <img src="${component.data.imageUrl}" class="map-image w-full h-auto rounded-lg" data-id="${component.id}">
-                                ${pinsHTML}
+                        html += `
+                            <div class="component-card mb-8" style="margin-left: ${level * 2}rem;">
+                                <h2 class="text-3xl font-bold mb-4 border-b border-gray-700 pb-2">${component.data.name}</h2>
+                                ${fieldsHTML}
                             </div>
-                        </div>
-                    `;
-                }
-                
-                if (component.type === 'session') {
-                    let quickRefHTML = '';
-                    if (component.data.planned_assets) {
-                        component.data.planned_assets.forEach(assetId => {
-                            const asset = project.components.find(c => c.id === assetId);
-                            if (asset) {
-                                quickRefHTML += `<li class="mb-1"><a href="#" class="component-link" data-link-id="${asset.id}">${asset.data.name}</a></li>`;
-                            }
-                        });
-                    }
-                    return `
-                        <div class="viewable space-y-4">
-                            <div>
-                                <h4 class="font-semibold text-gray-600 dark:text-gray-400">Date</h4>
-                                <p class="prose-style text-gray-800 dark:text-gray-200">${component.data.date}</p>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-600 dark:text-gray-400">Summary</h4>
-                                <p class="prose-style text-gray-800 dark:text-gray-200">${linkify(component.data.summary, component.id).replace(/\n/g, '<br>')}</p>
-                            </div>
-                            <div class="quick-reference-panel">
-                                <h4 class="font-bold text-lg mb-2">Quick Reference</h4>
-                                <ul class="list-disc list-inside">${quickRefHTML}</ul>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-gray-600 dark:text-gray-400">Session Log</h4>
-                                <p class="prose-style text-gray-800 dark:text-gray-200">${linkify(component.data.log, component.id).replace(/\n/g, '<br>')}</p>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                if (component.type === 'faction_overview') {
-                    let overviewHTML = '';
-                    const factions = project.components.filter(c => c.type === 'faction');
-                    if (factions.length > 0) {
-                        overviewHTML += '<ul class="space-y-4">';
-                        factions.forEach(faction => {
-                            overviewHTML += `<li class="border-b pb-2 dark:border-gray-700">
-                                <h4 class="font-bold text-lg"><a href="#" class="component-link" data-link-id="${faction.id}">${faction.data.name}</a></h4>
-                                <p class="prose-style text-gray-800 dark:text-gray-200">${linkify(faction.data.relationships || 'No defined relationships.', faction.id).replace(/\n/g, '<br>')}</p>
-                            </li>`;
-                        });
-                        overviewHTML += '</ul>';
-                    } else {
-                        overviewHTML = '<p>No factions found in this project.</p>';
-                    }
-                    return `<div class="viewable">${overviewHTML}</div>`;
-                }
-                
-                if (component.type === 'clue_tracker') {
-                    const clues = project.components.filter(c => c.type === 'clue');
-                    const conclusions = {};
-                    clues.forEach(clue => {
-                        const conclusionText = clue.data.conclusion || "Uncategorized";
-                        if (!conclusions[conclusionText]) {
-                            conclusions[conclusionText] = [];
-                        }
-                        conclusions[conclusionText].push(clue);
-                    });
-
-                    let trackerHTML = '<div class="space-y-6">';
-                    for (const conclusionText in conclusions) {
-                        const clueList = conclusions[conclusionText];
-                        let warningHTML = '';
-                        if (clueList.length < 3) {
-                            warningHTML = `
-                                <span class="clue-warning ml-2 flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M8.257 3.099c.636-1.21 2.273-1.21 2.91 0l5.396 10.27c.631 1.205-.28 2.631-1.64 2.631H4.5c-1.36 0-2.27-1.426-1.64-2.631l5.396-10.27zM9 8a1 1 0 011-1h.01a1 1 0 110 2H9a1 1 0 01-1-1zm1 2.5a.75.75 0 00-1.5 0v2.5a.75.75 0 001.5 0v-2.5z" clip-rule="evenodd" />
-                                    </svg>
-                                    Warning: Only ${clueList.length} clue(s) for this conclusion.
-                                </span>`;
-                        }
-
-                        trackerHTML += `
-                            <div>
-                                <h4 class="text-xl font-bold border-b dark:border-gray-600 pb-1 mb-2 flex items-center">${conclusionText} ${warningHTML}</h4>
-                                <ul class="list-disc list-inside space-y-2 pl-4">
                         `;
-                        clueList.forEach(clue => {
-                            trackerHTML += `<li><a href="#" class="component-link" data-link-id="${clue.id}">${clue.data.name}</a>: ${linkify(clue.data.information, clue.id)}</li>`;
-                        });
-                        trackerHTML += '</ul></div>';
-                    }
-                    trackerHTML += '</div>';
-                    return `<div class="viewable">${trackerHTML}</div>`;
-                }
 
-                let publicFields = '';
-                let secretFields = '';
-                const secretKeys = ['secrets_agenda', 'secrets'];
-
-                 for (const key in component.data) {
-                    if(!component.data[key]) continue;
-
-                    const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    const labelColor = component.type === 'story_arc' ? 'text-blue-300' : 'text-gray-600 dark:text-gray-400';
-                    const textColor = component.type === 'story_arc' ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200';
-                    
-                    const processedText = linkify(String(component.data[key]), component.id).replace(/\n/g, '<br>');
-
-                    const fieldHTML = `
-                        <div class="mb-3">
-                            <h4 class="font-semibold ${labelColor}">${label}</h4>
-                            <p class="prose-style ${textColor}">${processedText}</p>
-                        </div>
-                    `;
-                    
-                    if (secretKeys.includes(key)) {
-                        secretFields += fieldHTML;
-                    } else {
-                        publicFields += fieldHTML;
-                    }
-                }
-
-                let secretSectionHTML = '';
-                if (secretFields) {
-                    secretSectionHTML = `
-                        <div class="gm-only-section mt-4">
-                            <div class="gm-only-header">
-                                <span>GM-Only Information</span>
-                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
-                            </div>
-                            <div class="mt-2 hidden">
-                                ${secretFields}
-                            </div>
-                        </div>
-                    `;
-                }
-
-                return `<div class="viewable space-y-2">${publicFields}${secretSectionHTML}</div>`;
+                        if (component.children && component.children.length > 0) {
+                            traverseAndRender(component.children, level + 1);
+                        }
+                    });
+                };
+                traverseAndRender(project.components);
+                mainContent.innerHTML = html;
             };
 
-            window.scrollToComponent = (id) => {
-                const element = document.querySelector(`[data-id='${id}']`);
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    element.style.transition = 'outline 0.2s ease-in-out';
-                    element.style.outline = '2px solid #60a5fa';
-                    setTimeout(() => {
-                        element.style.outline = 'none';
-                    }, 1500);
-                }
-            }
-            
-            // Map specific logic
-            mapImageInput.addEventListener('change', (e) => {
+            // --- EVENT LISTENERS ---
+            window.addEventListener('resize', initializeApp);
+            undoButton.addEventListener('click', undoLastAction);
+            saveLocalButton.addEventListener('click', () => {
+                const dataStr = JSON.stringify(project, null, 2);
+                const blob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${project.title.replace(/[^a-z0-9]/gi, '_') || 'rpg-project'}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+            loadLocalButton.addEventListener('click', () => loadFileInput.click());
+            loadFileInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
-                if (!file || !currentMapComponentId) return;
-
+                if (!file) return;
                 const reader = new FileReader();
                 reader.onload = (event) => {
-                    const mapComponent = project.components.find(c => c.id === currentMapComponentId);
-                    if (mapComponent) {
-                        mapComponent.data.imageUrl = event.target.result;
-                        renderContent();
+                    try {
+                        const loadedData = JSON.parse(event.target.result);
+                        if (loadedData && loadedData.title && loadedData.components) {
+                            saveStateToHistory();
+                            project = loadedData;
+                            nextId = Math.max(0, ...getAllComponents(project.components).map(c => c.id)) + 1 || 1;
+                            activeComponentId = project.components.length > 0 ? project.components[0].id : null;
+                            isFullViewActive = false;
+                            renderAll();
+                        } else {
+                            alert('Invalid project file.');
+                        }
+                    } catch {
+                        alert('Error reading file.');
+                    }
+                };
+                reader.readAsText(file);
+                e.target.value = '';
+            });
+
+            addComponentList.addEventListener('click', (e) => {
+                if (e.target.matches('.add-component-btn')) {
+                    addComponent(e.target.dataset.type);
+                }
+            });
+
+            tocList.addEventListener('click', (e) => {
+                const tocItem = e.target.closest('.toc-item');
+                if (tocItem) {
+                    activeComponentId = parseInt(tocItem.dataset.id);
+                    isFullViewActive = false;
+                    mainApp.classList.remove('gm-mode');
+                    mainApp.classList.add('writer-mode');
+                    renderAll();
+                }
+            });
+            
+            gmViewButton.addEventListener('click', () => {
+                isFullViewActive = true;
+                activeComponentId = null;
+                mainApp.classList.add('gm-mode');
+                mainApp.classList.remove('writer-mode');
+                renderAll();
+            });
+            
+            confirmOkButton.addEventListener('click', () => {
+                if (typeof confirmCallback === 'function') {
+                    confirmCallback();
+                }
+                closeConfirm();
+            });
+            confirmCancelButton.addEventListener('click', closeConfirm);
+
+            mainContent.addEventListener('input', (e) => {
+                if (e.target.matches('[data-key]')) {
+                    const component = findComponent(activeComponentId);
+                    if (component) {
+                        component.data[e.target.dataset.key] = e.target.value;
+                        if(e.target.dataset.key === 'name') {
+                            renderTableOfContents();
+                            const cardHeader = mainContent.querySelector(`.component-card[data-id='${activeComponentId}'] h2`);
+                            if (cardHeader) {
+                                cardHeader.textContent = e.target.value;
+                            }
+                        }
+                    }
+                }
+            });
+            mainContent.addEventListener('focusout', (e) => { if (e.target.matches('[data-key]')) saveStateToHistory(); });
+
+            projectHeader.addEventListener('input', (e) => {
+                if (e.target.matches('[data-key]')) {
+                    project[e.target.dataset.key] = e.target.value;
+                     if(e.target.dataset.key === 'title') {
+                        projectTitleDisplay.textContent = project.title;
+                    }
+                }
+            });
+            projectHeader.addEventListener('focusout', (e) => { if (e.target.matches('[data-key]')) saveStateToHistory(); });
+            
+            mainContent.addEventListener('click', (e) => {
+                const actionTarget = e.target.closest('[data-action]');
+                if (!actionTarget) return;
+                
+                const action = actionTarget.dataset.action;
+
+                if (action === 'deleteComponent') {
+                    showConfirm('Are you sure you want to delete this component and all its sub-components?', () => {
+                        deleteComponent(activeComponentId);
+                    });
+                }
+                if (action === 'uploadMap') {
+                    mapImageInput.click();
+                }
+                if(action === 'indent') {
+                    indentComponent(activeComponentId);
+                }
+                if(action === 'outdent') {
+                    outdentComponent(activeComponentId);
+                }
+            });
+            
+            mapImageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const component = findComponent(activeComponentId);
+                    if (component && component.type === 'Map') {
+                        saveStateToHistory();
+                        component.data.imageUrl = event.target.result;
+                        renderActiveComponent();
                     }
                 };
                 reader.readAsDataURL(file);
                 e.target.value = '';
-                currentMapComponentId = null;
             });
 
-            const handleMapClick = (e) => {
-                const mapImage = e.target;
-                const mapComponentId = parseInt(mapImage.dataset.id);
-                const rect = mapImage.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width) * 100;
-                const y = ((e.clientY - rect.top) / rect.height) * 100;
+            // --- HIERARCHY AND DRAG/DROP LOGIC (REWRITTEN) ---
+            const indentComponent = (id) => {
+                const info = findComponentAndParent(id);
+                if (!info || info.index === 0) return;
                 
-                // Remove any existing dropdown
-                const existingDropdown = document.querySelector('.pin-linking-dropdown');
-                if (existingDropdown) existingDropdown.remove();
+                const parentArray = info.parent ? info.parent.children : project.components;
+                const newParent = parentArray[info.index - 1];
+                if (!newParent) return;
 
-                const dropdown = document.createElement('div');
-                dropdown.className = 'pin-linking-dropdown';
-                dropdown.style.left = `${e.clientX}px`;
-                dropdown.style.top = `${e.clientY}px`;
-                
-                let optionsHTML = '<select class="p-2 border rounded"><option value="">Link to...</option>';
-                project.components.forEach(c => {
-                    if (c.type !== 'map' && c.type !== 'session' && c.type !== 'faction_overview' && c.type !== 'clue_tracker') {
-                        optionsHTML += `<option value="${c.id}">${c.data.name} (${c.type.replace(/_/g, ' ')})</option>`;
-                    }
-                });
-                optionsHTML += '</select>';
-                
-                dropdown.innerHTML = optionsHTML;
-                document.body.appendChild(dropdown);
-
-                dropdown.querySelector('select').addEventListener('change', (selectEvent) => {
-                    const linkedComponentId = parseInt(selectEvent.target.value);
-                    if (!linkedComponentId) {
-                        dropdown.remove();
-                        return;
-                    }
-                    
-                    const mapComponent = project.components.find(c => c.id === mapComponentId);
-                    const linkedComponent = project.components.find(c => c.id === linkedComponentId);
-                    
-                    if (mapComponent && linkedComponent) {
-                        if (!mapComponent.data.pins) mapComponent.data.pins = [];
-                        mapComponent.data.pins.push({
-                            x: x,
-                            y: y,
-                            linkedComponentId: linkedComponent.id,
-                            linkedComponentName: linkedComponent.data.name
-                        });
-                        renderContent();
-                    }
-                    dropdown.remove();
-                });
+                saveStateToHistory();
+                const [itemToIndent] = parentArray.splice(info.index, 1);
+                newParent.children.push(itemToIndent);
+                renderAll();
             };
 
-            // --- Gemini API Integration ---
-            async function generateText(prompt, button) {
-                const originalText = button.innerHTML;
-                button.disabled = true;
-                button.innerHTML = 'Generating...';
+            const outdentComponent = (id) => {
+                const info = findComponentAndParent(id);
+                if (!info || !info.parent) return;
 
-                const proxyUrl = "https://rpg-scenario-guide-9udu94s42-btws-projects.vercel.app/api/generate";
+                const grandParentInfo = findComponentAndParent(info.parent.id);
+                if (!grandParentInfo) return; 
 
-                try {
-                    const response = await fetch(proxyUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prompt: prompt })
-                    });
-
-                    if (!response.ok) {
-                        const errorBody = await response.text();
-                        throw new Error(`Proxy request failed with status ${response.status}: ${errorBody}`);
-                    }
-
-                    const result = await response.json();
-                    
-                    if (result.text) {
-                        const targetTextarea = button.parentElement.parentElement.querySelector('textarea, input');
-                        if (targetTextarea) {
-                            targetTextarea.value = result.text.trim();
-                        }
-                    } else {
-                        console.error("Unexpected API response structure from proxy:", result);
-                        showNotification("Could not generate text. The response from the server was empty or malformed.", "API Error");
-                    }
-                } catch (error) {
-                    console.error("Error calling proxy:", error);
-                    showNotification(`An error occurred while generating text: ${error.message}`, "API Error");
-                } finally {
-                    button.disabled = false;
-                    button.innerHTML = originalText;
-                }
-            }
-
-            function handleGenerateClick(button) {
-                const componentId = parseInt(button.dataset.componentId);
-                const fieldKey = button.dataset.fieldKey;
-                const component = project.components.find(c => c.id === componentId);
-                if (!component) return;
-
-                let prompt = '';
-                const { name, type, role, description, goal, stakes, motivation, atmosphere, inhabitants, properties, rarity } = component.data;
-
-                switch (fieldKey) {
-                    case 'motivation':
-                        prompt = `Generate a compelling and nuanced motivation for a tabletop RPG character.
-                        Character Name: ${name}
-                        Role: ${role || 'N/A'}
-                        Description: ${description || 'N/A'}
-                        The motivation should be a short, actionable sentence.`;
-                        break;
-                    case 'description':
-                         prompt = `Generate an evocative, multi-sensory description for a tabletop RPG ${component.type}.
-                        Name: ${name}
-                        Details: ${component.data.summary || component.data.role || ''}
-                        The description should be a few sentences long.`;
-                        break;
-                    case 'atmosphere':
-                         prompt = `Generate an evocative, multi-sensory description of the atmosphere for a tabletop RPG location.
-                        Location Name: ${name}
-                        Location Type: ${type || 'N/A'}
-                        The description should focus on sights, sounds, and smells.`;
-                        break;
-                    case 'hook':
-                        prompt = `Generate a compelling and urgent adventure hook for a tabletop RPG quest.
-                        Quest Goal: ${goal || 'N/A'}
-                        Stakes (what happens if players fail?): ${stakes || 'N/A'}
-                        The hook should be a single, engaging paragraph.`;
-                        break;
-                    case 'stakes':
-                         prompt = `For a tabletop RPG quest with the goal "${goal}", generate high-stakes consequences for failure. What bad things will happen if the heroes don't succeed?`;
-                        break;
-                    case 'resolution':
-                         prompt = `For a tabletop RPG quest with the goal "${goal}" and stakes "${stakes}", describe a satisfying resolution assuming the players succeed.`;
-                        break;
-                    case 'properties':
-                         prompt = `Generate interesting magical properties for a tabletop RPG item named "${name}".
-                         Description: ${description || 'N/A'}
-                         Rarity: ${rarity || 'N/A'}
-                         The properties should be unique and flavorful.`;
-                        break;
-                    case 'dialogue':
-                        prompt = `Generate three sample lines of dialogue for a tabletop RPG NPC. The dialogue should reflect their personality and current situation.
-                        NPC Name: ${name}
-                        Role: ${role || 'N/A'}
-                        Motivation: ${motivation || 'N/A'}
-                        Description: ${description || 'N/A'}`;
-                        break;
-                    case 'suggested_encounters':
-                        prompt = `Generate three brief encounter ideas (1-2 sentences each) suitable for a tabletop RPG location. Include a mix of combat, social, or exploration encounters.
-                        Location Name: ${name}
-                        Atmosphere: ${atmosphere || 'N/A'}
-                        Inhabitants: ${inhabitants || 'N/A'}`;
-                        break;
-                    case 'backstory':
-                        prompt = `Generate a compelling, one-paragraph backstory for a tabletop RPG magic item.
-                        Item Name: ${name}
-                        Item Type: Special Item
-                        Properties: ${properties || 'N/A'}
-                        Description: ${description || 'N/A'}`;
-                        break;
-                }
+                saveStateToHistory();
+                const sourceArray = info.parent.children;
+                const [itemToOutdent] = sourceArray.splice(info.index, 1);
                 
-                if (prompt) {
-                    generateText(prompt, button);
+                const destinationArray = grandParentInfo.parent ? grandParentInfo.parent.children : project.components;
+                destinationArray.splice(grandParentInfo.index + 1, 0, itemToOutdent);
+                renderAll();
+            };
+
+            const moveComponent = (draggedId, targetId) => {
+                if (draggedId === targetId) return;
+                saveStateToHistory();
+
+                const draggedInfo = findComponentAndParent(draggedId);
+                if (!draggedInfo) return;
+                
+                const sourceArray = draggedInfo.parent ? draggedInfo.parent.children : project.components;
+                const [draggedItem] = sourceArray.splice(draggedInfo.index, 1);
+                
+                const targetInfo = findComponentAndParent(targetId);
+                if (!targetInfo) { 
+                    project.components.push(draggedItem);
+                } else {
+                    const targetArray = targetInfo.parent ? targetInfo.parent.children : project.components;
+                    targetArray.splice(targetInfo.index, 0, draggedItem);
                 }
-            }
 
+                renderAll();
+            };
 
-            // Initial Load
-            resetProject();
-            renderAll();
-            mainApp.classList.remove('hidden');
-            mainApp.classList.add('md:grid');
-            projectTypeModal.classList.add('hidden');
+            tocList.addEventListener('dragstart', e => {
+                const target = e.target.closest('.toc-item');
+                if (target) {
+                    draggingItemId = parseInt(target.dataset.id);
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => target.classList.add('dragging'), 0);
+                }
+            });
+
+            tocList.addEventListener('dragend', e => {
+                draggingItemId = null;
+                document.querySelectorAll('.toc-item').forEach(el => {
+                    el.classList.remove('dragging', 'drop-target');
+                });
+            });
+            
+            tocList.addEventListener('dragover', e => {
+                e.preventDefault();
+                const dropTargetElement = e.target.closest('.toc-item');
+                if (!dropTargetElement) return;
+
+                document.querySelectorAll('.toc-item').forEach(el => {
+                    el.classList.remove('drop-target');
+                });
+                
+                dropTargetElement.classList.add('drop-target');
+            });
+
+            tocList.addEventListener('drop', e => {
+                e.preventDefault();
+                const dropTargetElement = e.target.closest('.toc-item');
+                document.querySelectorAll('.toc-item').forEach(el => el.classList.remove('drop-target'));
+                if (!dropTargetElement || draggingItemId === null) return;
+                
+                const dropTargetId = parseInt(dropTargetElement.dataset.id);
+                moveComponent(draggingItemId, dropTargetId);
+            });
+
+            // --- INITIALIZE ---
+            initializeApp();
         });
     </script>
 </body>
