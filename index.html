@@ -19,6 +19,7 @@
             --active-bg: #4b5563; /* gray-600 */
             --active-text: #ffffff;
             --drop-indicator-color: #60a5fa; /* blue-400 */
+            --link-color: #93c5fd; /* blue-300 */
         }
 
         body {
@@ -37,7 +38,7 @@
         /* Main Layout */
         #app-container {
             display: grid;
-            grid-template-columns: 300px 1fr 250px;
+            grid-template-columns: 300px 1fr 200px;
             height: 100vh;
             gap: 1.5rem;
             padding: 1.5rem;
@@ -187,6 +188,30 @@
             max-width: 100%;
             border-radius: 0.5rem;
         }
+        
+        .component-link {
+            color: var(--link-color);
+            text-decoration: underline;
+            text-decoration-style: dashed;
+            cursor: pointer;
+        }
+        .component-link:hover {
+            text-decoration-style: solid;
+        }
+
+        /* Quick Reference Panel */
+        #quick-ref-panel {
+            position: fixed;
+            right: 1.5rem;
+            top: 1.5rem;
+            bottom: 1.5rem;
+            width: 250px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .gm-mode #quick-ref-panel {
+            transform: translateX(0);
+        }
 
         /* Mobile */
         @media (max-width: 1024px) {
@@ -195,7 +220,7 @@
                 padding: 1rem;
                 gap: 1rem;
             }
-            #toc-panel, #add-panel {
+            #toc-panel, #add-panel, #quick-ref-panel {
                 display: none; /* Hide side panels on smaller screens */
             }
         }
@@ -212,6 +237,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                     </svg>
                 </button>
+            </div>
+            <div class="p-2 border-b border-gray-700">
+                <input type="text" id="toc-filter" placeholder="Filter components..." class="w-full bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-sm">
             </div>
             <div id="toc-list" class="panel-content space-y-1">
                 </div>
@@ -243,12 +271,19 @@
 
         <aside id="add-panel" class="panel">
             <div class="panel-header">
-                <h2 class="text-xl font-bold">Add a Component</h2>
+                <h2 class="text-xl font-bold">Component</h2>
             </div>
             <div id="add-component-list" class="panel-content">
                 </div>
         </aside>
     </div>
+    
+    <aside id="quick-ref-panel" class="panel">
+        <div class="panel-header">
+            <h2 class="text-xl font-bold">Quick Reference</h2>
+        </div>
+        <div id="quick-ref-list" class="panel-content"></div>
+    </aside>
 
     <div id="mobileMessage" class="hidden lg:hidden flex-col items-center justify-center h-screen text-center p-4 bg-gray-900 text-gray-300">
         <h2 class="text-2xl font-bold mb-2 font-serif">RPG Scenario Guide</h2>
@@ -292,6 +327,7 @@
             const mapImageInput = document.getElementById('mapImageInput');
             const addComponentList = document.getElementById('add-component-list');
             const tocList = document.getElementById('toc-list');
+            const tocFilterInput = document.getElementById('toc-filter');
             const projectTitleDisplay = document.getElementById('project-title-display');
             const undoButton = document.getElementById('undoButton');
             const confirmModal = document.getElementById('confirmModal');
@@ -299,6 +335,7 @@
             const confirmOkButton = document.getElementById('confirmOkButton');
             const confirmCancelButton = document.getElementById('confirmCancelButton');
             const gmViewButton = document.getElementById('gmViewButton');
+            const quickRefList = document.getElementById('quick-ref-list');
 
             // --- HELPER FUNCTIONS (DEFINED EARLY) ---
             const findComponentAndParent = (id, components = project.components, parent = null) => {
@@ -328,6 +365,17 @@
             const findComponent = (id) => {
                 const result = findComponentAndParent(id);
                 return result ? result.component : null;
+            };
+
+            const linkify = (text) => {
+                const allComponents = getAllComponents(project.components);
+                return text.replace(/\[\[(.*?)\]\]/g, (match, componentName) => {
+                    const target = allComponents.find(c => c.data.name.toLowerCase() === componentName.toLowerCase());
+                    if (target) {
+                        return `<a href="#" class="component-link" data-link-id="${target.id}">${componentName}</a>`;
+                    }
+                    return match; // Return original text if no match
+                });
             };
 
             // --- INITIALIZATION ---
@@ -427,17 +475,17 @@
 
             const getTemplateForType = (type) => {
                 const templates = {
-                    'Story Arc': { name: 'New Story Arc', summary: '', goal: '', key_antagonist: '', resolution: '' },
-                    'Adventure': { name: 'New Adventure', hook: '', goal: '', stakes: '', resolution: '' },
-                    'NPC': { name: 'New NPC', role: 'Quest Giver', motivation: 'To acquire wealth.', description: 'A brief description of their appearance and demeanor.' },
-                    'Location': { name: 'New Location', type: 'City', description: '', atmosphere: '', secrets: '' },
-                    'Faction': { name: 'New Faction', goals: 'Gain political control.', ideology: '', key_members: '' },
-                    'Encounter': { name: 'New Encounter', type: 'Combat', description: '', setup: '', resolution: '' },
-                    'Item': { name: 'Special Item', rarity: 'Uncommon', description: '', properties: '' },
-                    'Clue': { name: 'New Clue', information: '', location_found: '', conclusion: '' },
-                    'Map': { name: 'New Map', description: '', imageUrl: null },
+                    'Story Arc': { name: 'New Story Arc', summary: '', goal: '', 'Key Antagonist': '', resolution: '', tags: '' },
+                    'Adventure': { name: 'New Adventure', hook: '', goal: '', stakes: '', resolution: '', tags: '' },
+                    'NPC': { name: 'New NPC', role: 'Quest Giver', appearance: '', motivation: 'To acquire wealth.', secrets: '', 'plot_hooks': '', tags: '' },
+                    'Location': { name: 'New Location', type: 'City', description: '', atmosphere: '', 'key_sights': '', 'sounds_and_smells': '', 'potential_encounters': '', secrets: '', tags: '' },
+                    'Faction': { name: 'New Faction', goals: 'Gain political control.', ideology: '', key_members: '', resources: '', tags: '' },
+                    'Encounter': { name: 'New Encounter', type: 'Combat', description: '', setup: '', resolution: '', tags: '' },
+                    'Item': { name: 'New Item', rarity: 'Uncommon', attunement: 'No', description: '', properties: '', history: '', tags: '' },
+                    'Clue': { name: 'New Clue', information: '', location_found: '', conclusion: '', tags: '' },
+                    'Map': { name: 'New Map', description: '', imageUrl: null, tags: '' },
                 };
-                return templates[type] || { name: `New ${type}` };
+                return templates[type] || { name: `New ${type}`, tags: '' };
             };
 
             // --- RENDER FUNCTIONS ---
@@ -458,7 +506,7 @@
                     </div>
                     <div class="viewable-content">
                         <h1 class="text-4xl font-bold mb-4">${project.title}</h1>
-                        <p class="book-prose text-lg italic text-gray-400">${project.pitch}</p>
+                        <p class="book-prose text-lg italic text-gray-400">${linkify(project.pitch)}</p>
                     </div>
                 `;
                 projectHeader.innerHTML = headerContent;
@@ -466,8 +514,29 @@
 
             const renderTableOfContents = () => {
                 tocList.innerHTML = '';
-                if (project.components.length === 0) {
-                    tocList.innerHTML = `<p class="text-sm text-gray-400 px-1">Your components will appear here.</p>`;
+                const filterText = tocFilterInput.value.toLowerCase();
+                
+                const filterAndBuild = (components) => {
+                    const filtered = [];
+                    for(const component of components) {
+                        const selfMatch = component.data.name.toLowerCase().includes(filterText) ||
+                                        (component.data.tags && component.data.tags.toLowerCase().includes(filterText));
+                        const children = component.children ? filterAndBuild(component.children) : [];
+
+                        if(selfMatch || children.length > 0) {
+                            filtered.push({
+                                ...component,
+                                children: children
+                            });
+                        }
+                    }
+                    return filtered;
+                }
+
+                const componentsToRender = filterText ? filterAndBuild(project.components) : project.components;
+
+                if (componentsToRender.length === 0) {
+                    tocList.innerHTML = `<p class="text-sm text-gray-400 px-1">No matching components.</p>`;
                     return;
                 }
 
@@ -505,7 +574,7 @@
                     });
                     return components.map(c => tocList.querySelector(`[data-id='${c.id}']`).parentElement);
                 };
-                renderItems(project.components);
+                renderItems(componentsToRender);
             };
 
             const renderAddComponentSidebar = () => {
@@ -519,6 +588,7 @@
                 mainContent.innerHTML = '';
                 if (isFullViewActive) {
                     renderAllComponentsView();
+                    renderQuickReferencePanel();
                     return;
                 }
 
@@ -548,15 +618,16 @@
                             <button data-action="uploadMap" class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-md text-white">Upload Map Image</button>
                         </div>
                         <div class="viewable-content">
-                            <p class="book-prose mt-1">${component.data.description || ''}</p>
+                            <p class="book-prose mt-1">${linkify(component.data.description || '')}</p>
                         </div>
                         ${component.data.imageUrl ? `<div class="mt-4 map-container"><img src="${component.data.imageUrl}"></div>` : ''}
                     `;
                 } else {
                     for (const key in component.data) {
+                        if (key === 'tags') continue;
                         const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
-                        const value = component.data[key];
-                        const isTextArea = ['summary', 'description', 'pitch', 'hook', 'stakes', 'resolution', 'motivation', 'atmosphere', 'secrets', 'goals', 'ideology', 'key_members', 'setup', 'properties', 'information', 'conclusion'].includes(key);
+                        const value = component.data[key] || '';
+                        const isTextArea = ['summary', 'description', 'pitch', 'hook', 'stakes', 'resolution', 'motivation', 'atmosphere', 'secrets', 'goals', 'ideology', 'key_members', 'setup', 'properties', 'information', 'conclusion', 'plot_hooks', 'key_sights', 'sounds_and_smells', 'potential_encounters', 'history'].includes(key);
                         
                         fieldsHTML += `
                             <div class="mb-6">
@@ -567,11 +638,20 @@
                                         : `<input type="text" data-key="${key}" value="${value}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">`
                                     }
                                 </div>
-                                <p class="viewable-content book-prose mt-1">${String(value).replace(/\n/g, '<br>')}</p>
+                                <p class="viewable-content book-prose mt-1">${linkify(String(value).replace(/\n/g, '<br>'))}</p>
                             </div>
                         `;
                     }
                 }
+                
+                // Tags field at the end
+                fieldsHTML += `
+                     <div class="mb-6">
+                        <label class="block text-sm font-bold text-gray-500 mb-1">Tags</label>
+                        <input type="text" data-key="tags" value="${component.data.tags || ''}" class="editable-content w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition" placeholder="comma, separated, tags">
+                        <p class="viewable-content book-prose mt-1">${component.data.tags || 'No tags'}</p>
+                    </div>
+                `;
                 
                 const parentArray = parent ? parent.children : project.components;
                 const canIndent = index > 0;
@@ -603,14 +683,19 @@
                     components.forEach(component => {
                         let fieldsHTML = '';
                         for (const key in component.data) {
-                            if (key === 'name') continue;
+                            if (key === 'name' || key === 'imageUrl') continue;
                             const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
                             const value = String(component.data[key]).replace(/\n/g, '<br>');
-                            fieldsHTML += `<div class="mb-4"><h4 class="font-bold text-gray-400">${label}</h4><p class="book-prose">${value}</p></div>`;
+                            if(value) {
+                                fieldsHTML += `<div class="mb-4"><h4 class="font-bold text-gray-400">${label}</h4><p class="book-prose">${linkify(value)}</p></div>`;
+                            }
+                        }
+                        if (component.data.imageUrl) {
+                            fieldsHTML += `<div class="mt-4 map-container"><img src="${component.data.imageUrl}"></div>`;
                         }
                         
                         html += `
-                            <div class="component-card mb-8" style="margin-left: ${level * 2}rem;">
+                            <div class="component-card mb-8" id="component-card-${component.id}" style="margin-left: ${level * 2}rem;">
                                 <h2 class="text-3xl font-bold mb-4 border-b border-gray-700 pb-2">${component.data.name}</h2>
                                 ${fieldsHTML}
                             </div>
@@ -624,6 +709,30 @@
                 traverseAndRender(project.components);
                 mainContent.innerHTML = html;
             };
+            
+            const renderQuickReferencePanel = () => {
+                quickRefList.innerHTML = '';
+                const keyComponents = getAllComponents(project.components).filter(c => c.type === 'NPC' || c.type === 'Location');
+                if (keyComponents.length === 0) {
+                    quickRefList.innerHTML = `<p class="text-sm text-gray-400">No NPCs or Locations found.</p>`;
+                    return;
+                }
+                
+                let listHtml = '<div class="space-y-2">';
+                listHtml += '<h3 class="font-bold text-lg">NPCs</h3>';
+                keyComponents.filter(c => c.type === 'NPC').forEach(c => {
+                    listHtml += `<div><a href="#" class="quick-ref-link" data-scroll-to-id="${c.id}">${c.data.name}</a></div>`;
+                });
+
+                listHtml += '<h3 class="font-bold text-lg mt-4">Locations</h3>';
+                keyComponents.filter(c => c.type === 'Location').forEach(c => {
+                    listHtml += `<div><a href="#" class="quick-ref-link" data-scroll-to-id="${c.id}">${c.data.name}</a></div>`;
+                });
+
+                listHtml += '</div>';
+                quickRefList.innerHTML = listHtml;
+            };
+
 
             // --- EVENT LISTENERS ---
             window.addEventListener('resize', initializeApp);
@@ -726,23 +835,45 @@
             
             mainContent.addEventListener('click', (e) => {
                 const actionTarget = e.target.closest('[data-action]');
-                if (!actionTarget) return;
-                
-                const action = actionTarget.dataset.action;
+                if (actionTarget) {
+                    const action = actionTarget.dataset.action;
 
-                if (action === 'deleteComponent') {
-                    showConfirm('Are you sure you want to delete this component and all its sub-components?', () => {
-                        deleteComponent(activeComponentId);
-                    });
+                    if (action === 'deleteComponent') {
+                        showConfirm('Are you sure you want to delete this component and all its sub-components?', () => {
+                            deleteComponent(activeComponentId);
+                        });
+                    }
+                    if (action === 'uploadMap') {
+                        mapImageInput.click();
+                    }
+                    if(action === 'indent') {
+                        indentComponent(activeComponentId);
+                    }
+                    if(action === 'outdent') {
+                        outdentComponent(activeComponentId);
+                    }
+                } else {
+                    const linkTarget = e.target.closest('.component-link');
+                    if(linkTarget) {
+                        e.preventDefault();
+                        const linkId = parseInt(linkTarget.dataset.linkId);
+                        activeComponentId = linkId;
+                        isFullViewActive = false;
+                        mainApp.classList.remove('gm-mode');
+                        mainApp.classList.add('writer-mode');
+                        renderAll();
+                    }
                 }
-                if (action === 'uploadMap') {
-                    mapImageInput.click();
-                }
-                if(action === 'indent') {
-                    indentComponent(activeComponentId);
-                }
-                if(action === 'outdent') {
-                    outdentComponent(activeComponentId);
+            });
+            
+            quickRefList.addEventListener('click', (e) => {
+                if(e.target.matches('.quick-ref-link')) {
+                    e.preventDefault();
+                    const targetId = e.target.dataset.scrollToId;
+                    const targetElement = document.getElementById(`component-card-${targetId}`);
+                    if(targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                    }
                 }
             });
             
@@ -761,6 +892,8 @@
                 reader.readAsDataURL(file);
                 e.target.value = '';
             });
+
+            tocFilterInput.addEventListener('input', renderTableOfContents);
 
             // --- HIERARCHY AND DRAG/DROP LOGIC (REWRITTEN) ---
             const indentComponent = (id) => {
