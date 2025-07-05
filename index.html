@@ -168,12 +168,12 @@
             background-color: var(--panel-bg);
         }
         
-        input, textarea {
+        input {
             background-color: var(--panel-bg);
             border-color: var(--border-color);
             color: var(--text-color);
         }
-        input:focus, textarea:focus {
+        input:focus {
             --tw-ring-color: var(--text-muted);
         }
         
@@ -199,6 +199,86 @@
         .component-link:hover {
             text-decoration-style: solid;
         }
+        
+        /* WYSIWYG Editor Styles */
+        .editor-toolbar {
+            background-color: #374151;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            padding: 0.25rem;
+            display: flex;
+            gap: 0.25rem;
+            border-top-left-radius: 0.375rem;
+            border-top-right-radius: 0.375rem;
+        }
+        .editor-toolbar button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+        .editor-toolbar button:hover {
+            background-color: var(--active-bg);
+        }
+        .editor-toolbar button.bold { font-weight: bold; }
+        .editor-toolbar button.italic { font-style: italic; }
+        .editor-toolbar button.underline { text-decoration: underline; }
+
+        .wysiwyg-editor {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 0.375rem;
+            border-bottom-right-radius: 0.375rem;
+            padding: 0.75rem;
+            min-height: 150px;
+            outline: none;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        .wysiwyg-editor:focus {
+            border-color: var(--link-color);
+            box-shadow: 0 0 0 1px var(--link-color);
+        }
+        .wysiwyg-editor b, .wysiwyg-editor strong {
+            font-weight: bold;
+            color: var(--active-text);
+        }
+        .wysiwyg-editor i, .wysiwyg-editor em {
+            font-style: italic;
+        }
+        .wysiwyg-editor u {
+            text-decoration: underline;
+        }
+        .wysiwyg-editor .internal-link {
+            color: var(--link-color);
+            text-decoration: underline;
+            text-decoration-style: dashed;
+            background-color: rgba(147, 197, 253, 0.1);
+            padding: 0.1em 0.2em;
+            border-radius: 0.2em;
+        }
+
+
+        /* Styling for rendered content in GM View */
+        .book-prose > *:first-child { margin-top: 0; }
+        .book-prose h1, .book-prose h2, .book-prose h3, .book-prose h4, .book-prose h5, .book-prose h6 {
+            color: var(--text-color); margin-top: 1.25em; margin-bottom: 0.5em; text-transform: none;
+        }
+        .book-prose h1 { font-size: 2em; } .book-prose h2 { font-size: 1.5em; } .book-prose h3 { font-size: 1.25em; }
+        .book-prose p { margin-bottom: 1em; line-height: 1.6; }
+        .book-prose ul, .book-prose ol { padding-left: 1.5em; margin-bottom: 1em; }
+        .book-prose ul { list-style-type: disc; } .book-prose ol { list-style-type: decimal; }
+        .book-prose li { margin-bottom: 0.5em; }
+        .book-prose a { color: var(--link-color); text-decoration: underline; }
+        .book-prose strong, .book-prose b { font-weight: bold; color: var(--active-text); }
+        .book-prose em, .book-prose i { font-style: italic; }
+        .book-prose u { text-decoration: underline; }
+        .book-prose blockquote { border-left: 4px solid var(--border-color); padding-left: 1em; margin-left: 0; color: var(--text-muted); font-style: italic; }
+        .book-prose pre { background-color: var(--bg-color); padding: 1em; border-radius: 0.5rem; overflow-x: auto; }
+        .book-prose code { background-color: var(--bg-color); padding: 0.2em 0.4em; border-radius: 0.25rem; font-size: 0.9em; }
+        .book-prose pre code { background-color: transparent; padding: 0; }
 
         /* Quick Reference Panel */
         #quick-ref-panel {
@@ -230,6 +310,7 @@
 <body>
 
     <div id="app-container" class="writer-mode">
+        <!-- Left Panel: Table of Contents -->
         <aside id="toc-panel" class="panel">
             <div class="panel-header flex justify-between items-center">
                 <h2 class="text-xl">Table of Contents</h2>
@@ -243,12 +324,14 @@
                 <input type="text" id="toc-filter" placeholder="Filter components..." class="w-full bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-sm">
             </div>
             <div id="toc-list" class="panel-content space-y-1">
-                </div>
+                <!-- Table of Contents items will be dynamically inserted here -->
+            </div>
             <div class="panel-footer">
                 <button id="gmViewButton" class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-white">GM View</button>
             </div>
         </aside>
 
+        <!-- Center Panel: Main Content -->
         <main id="main-panel" class="panel">
              <div class="panel-header flex justify-between items-center">
                  <div class="flex items-center gap-4">
@@ -258,30 +341,34 @@
                              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                          </button>
                          <button id="loadLocalButton" title="Load Project" class="p-2 rounded-md hover:bg-gray-700">
-                            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                             <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
                          </button>
                      </div>
                  </div>
                  <button id="helpButton" title="Help" class="p-2 rounded-md hover:bg-gray-700">
-                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
-                </button>
+                     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>
+                 </button>
              </div>
             <div id="main-scroll-area" class="panel-content">
                 <div id="projectHeader" class="mb-12"></div>
                 <div id="mainContent" class="space-y-8">
-                    </div>
+                    <!-- Active component content will be dynamically inserted here -->
+                </div>
             </div>
         </main>
 
+        <!-- Right Panel: Add Components -->
         <aside id="add-panel" class="panel">
             <div class="panel-header">
                 <h2 class="text-xl">Component</h2>
             </div>
             <div id="add-component-list" class="panel-content">
-                </div>
+                <!-- Component buttons will be dynamically inserted here -->
+            </div>
         </aside>
     </div>
     
+    <!-- GM View Quick Reference Panel -->
     <aside id="quick-ref-panel" class="panel">
         <div class="panel-header">
             <h2 class="text-xl">Quick Reference</h2>
@@ -289,6 +376,7 @@
         <div id="quick-ref-list" class="panel-content"></div>
     </aside>
 
+    <!-- Mobile view message -->
     <div id="mobileMessage" class="hidden lg:hidden flex-col items-center justify-center h-screen text-center p-4 bg-gray-900 text-gray-300">
         <h2 class="text-2xl font-bold mb-2 font-serif">RPG Scenario Guide</h2>
         <p>This application is designed for a larger screen. Please use a desktop or tablet for the best experience.</p>
@@ -312,7 +400,8 @@
             <h2 class="text-2xl font-bold text-white mb-4">Import Components</h2>
             <p class="text-gray-400 mb-4">Select the components you wish to import into your current project.</p>
             <div id="import-options-list" class="flex-grow overflow-y-auto border border-gray-700 rounded-lg p-4">
-                </div>
+                <!-- Import options will be dynamically inserted here -->
+            </div>
             <div class="flex justify-end gap-4 mt-6">
                 <button id="importCancelButton" class="px-6 py-2 bg-gray-600 text-white font-bold rounded-lg hover:bg-gray-500">Cancel</button>
                 <button id="importConfirmButton" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Import Selected</button>
@@ -328,10 +417,12 @@
                 <button id="helpCloseButton" class="p-2 rounded-full hover:bg-gray-700">&times;</button>
             </div>
             <div id="help-content" class="flex-grow overflow-y-auto pr-4">
-                </div>
+                <!-- Help content will be dynamically inserted here -->
+            </div>
         </div>
     </div>
 
+    <!-- Hidden file inputs -->
     <input type="file" id="loadFileInput" class="hidden" accept=".json">
     <input type="file" id="mapImageInput" class="hidden" accept="image/*">
 
@@ -376,7 +467,7 @@
             const helpContent = document.getElementById('help-content');
             const helpCloseButton = document.getElementById('helpCloseButton');
 
-            // --- HELPER FUNCTIONS (DEFINED EARLY) ---
+            // --- HELPER FUNCTIONS ---
             const findComponentAndParent = (id, components = project.components, parent = null) => {
                 for (let i = 0; i < components.length; i++) {
                     const component = components[i];
@@ -405,17 +496,34 @@
                 const result = findComponentAndParent(id);
                 return result ? result.component : null;
             };
+            
+            const processTextForDisplay = (html) => {
+                if (typeof html !== 'string') return '';
+                
+                // Create a temporary div to parse and manipulate the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
 
-            const linkify = (text) => {
+                // Find all internal links and replace them with the correct clickable format
+                const internalLinks = tempDiv.querySelectorAll('.internal-link');
                 const allComponents = getAllComponents(project.components);
-                return text.replace(/\[\[(.*?)\]\]/g, (match, componentName) => {
+
+                internalLinks.forEach(link => {
+                    const componentName = link.textContent;
                     const target = allComponents.find(c => c.data.name.toLowerCase() === componentName.toLowerCase());
                     if (target) {
-                        return `<a href="#" class="component-link" data-link-id="${target.id}">${componentName}</a>`;
+                        const newLink = document.createElement('a');
+                        newLink.href = '#';
+                        newLink.className = 'component-link';
+                        newLink.dataset.linkId = target.id;
+                        newLink.textContent = componentName;
+                        link.replaceWith(newLink);
                     }
-                    return match; // Return original text if no match
                 });
+
+                return tempDiv.innerHTML;
             };
+
 
             // --- INITIALIZATION ---
             function initializeApp() {
@@ -557,11 +665,11 @@
                 const headerContent = `
                     <div class="editable-content">
                         <input type="text" data-key="title" value="${project.title}" placeholder="Project Title" class="text-4xl w-full bg-transparent border-b-2 border-transparent focus:border-gray-600 outline-none pb-2 transition-colors">
-                        <textarea data-key="pitch" placeholder="Project Pitch..." class="w-full bg-transparent border-b-2 border-transparent focus:border-gray-600 outline-none p-2 mt-4" rows="3">${project.pitch}</textarea>
+                        <div data-key="pitch" class="wysiwyg-editor mt-4" contenteditable="true">${project.pitch}</div>
                     </div>
                     <div class="viewable-content">
                         <h1 class="text-4xl mb-4">${project.title}</h1>
-                        <p class="italic text-gray-400">${linkify(project.pitch)}</p>
+                        <div class="italic text-gray-400 book-prose">${processTextForDisplay(project.pitch)}</div>
                     </div>
                 `;
                 projectHeader.innerHTML = headerContent;
@@ -665,18 +773,35 @@
                     const value = component.data[key] || '';
                     const isTextArea = ['summary', 'description', 'pitch', 'hook', 'stakes', 'resolution', 'motivation', 'atmosphere', 'secrets', 'goals', 'ideology', 'key_members', 'setup', 'properties', 'information', 'conclusion', 'plot_hooks', 'key_sights', 'sounds_and_smells', 'potential_encounters', 'history', 'mechanic', 'notes'].includes(key);
                     
-                    fieldsHTML += `
-                        <div class="mb-6">
-                            <label class="component-label block text-sm mb-1">${label}</label>
-                            <div class="editable-content">
-                                ${isTextArea 
-                                    ? `<textarea data-key="${key}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">${value}</textarea>`
-                                    : `<input type="text" data-key="${key}" value="${value}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">`
-                                }
+                    if (isTextArea) {
+                        fieldsHTML += `
+                            <div class="mb-6">
+                                <label class="component-label block text-sm mb-1">${label}</label>
+                                <div class="editable-content">
+                                    <div class="editor-toolbar">
+                                        <button data-command="bold" class="bold">B</button>
+                                        <button data-command="italic" class="italic">I</button>
+                                        <button data-command="underline" class="underline">U</button>
+                                        <button data-command="createLink" title="Create Internal Link">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" /></svg>
+                                        </button>
+                                    </div>
+                                    <div data-key="${key}" class="wysiwyg-editor" contenteditable="true">${value}</div>
+                                </div>
+                                <div class="viewable-content book-prose mt-1">${processTextForDisplay(value)}</div>
                             </div>
-                            <p class="viewable-content book-prose mt-1">${linkify(String(value).replace(/\n/g, '<br>'))}</p>
-                        </div>
-                    `;
+                        `;
+                    } else {
+                         fieldsHTML += `
+                            <div class="mb-6">
+                                <label class="component-label block text-sm mb-1">${label}</label>
+                                <div class="editable-content">
+                                    <input type="text" data-key="${key}" value="${value}" class="w-full p-2 bg-transparent border-b-2 border-gray-700 focus:border-gray-400 outline-none transition">
+                                </div>
+                                <div class="viewable-content book-prose mt-1">${processTextForDisplay(value)}</div>
+                            </div>
+                        `;
+                    }
                 }
                 
                 if (component.type === 'Map') {
@@ -718,12 +843,10 @@
                     components.forEach(component => {
                         let fieldsHTML = '';
                         for (const key in component.data) {
-                            if (key === 'name' || key === 'imageUrl') continue;
+                            if (key === 'name' || key === 'imageUrl' || !component.data[key]) continue;
                             const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
-                            const value = String(component.data[key]).replace(/\n/g, '<br>');
-                            if(value) {
-                                fieldsHTML += `<div class="mb-4"><h4 class="font-bold text-gray-400">${label}</h4><p class="book-prose">${linkify(value)}</p></div>`;
-                            }
+                            const value = component.data[key];
+                            fieldsHTML += `<div class="mb-4"><h4 class="font-bold text-gray-400">${label}</h4><div class="book-prose">${processTextForDisplay(value)}</div></div>`;
                         }
                         if (component.data.imageUrl) {
                             fieldsHTML += `<div class="mt-4 map-container"><img src="${component.data.imageUrl}"></div>`;
@@ -842,16 +965,18 @@
             confirmCancelButton.addEventListener('click', closeConfirm);
 
             mainContent.addEventListener('input', (e) => {
-                if (e.target.matches('[data-key]')) {
+                const target = e.target;
+                if (target.matches('[data-key]')) {
                     const component = findComponent(activeComponentId);
                     if (component) {
-                        component.data[e.target.dataset.key] = e.target.value;
-                        if(e.target.dataset.key === 'name') {
+                        const key = target.dataset.key;
+                        const value = target.isContentEditable ? target.innerHTML : target.value;
+                        component.data[key] = value;
+
+                        if(key === 'name') {
                             renderTableOfContents();
                             const cardHeader = mainContent.querySelector(`.component-card[data-id='${activeComponentId}'] h2`);
-                            if (cardHeader) {
-                                cardHeader.textContent = e.target.value;
-                            }
+                            if (cardHeader) cardHeader.textContent = value;
                         }
                     }
                 }
@@ -859,10 +984,13 @@
             mainContent.addEventListener('focusout', (e) => { if (e.target.matches('[data-key]')) saveStateToHistory(); });
 
             projectHeader.addEventListener('input', (e) => {
-                if (e.target.matches('[data-key]')) {
-                    project[e.target.dataset.key] = e.target.value;
-                     if(e.target.dataset.key === 'title') {
-                        projectTitleDisplay.textContent = project.title;
+                const target = e.target;
+                if (target.matches('[data-key]')) {
+                     const key = target.dataset.key;
+                     const value = target.isContentEditable ? target.innerHTML : target.value;
+                     project[key] = value;
+                     if(key === 'title') {
+                         projectTitleDisplay.textContent = value;
                     }
                 }
             });
@@ -870,21 +998,42 @@
             
             mainContent.addEventListener('click', (e) => {
                 const actionTarget = e.target.closest('[data-action]');
-                if (actionTarget) {
+                const commandTarget = e.target.closest('[data-command]');
+
+                if (commandTarget) {
+                    const command = commandTarget.dataset.command;
+                    const editor = commandTarget.closest('.editable-content').querySelector('.wysiwyg-editor');
+                    editor.focus();
+                    
+                    if (command === 'createLink') {
+                        const selection = document.getSelection();
+                        if (!selection.rangeCount || selection.isCollapsed) return;
+                        
+                        const range = selection.getRangeAt(0);
+                        const span = document.createElement('span');
+                        span.className = 'internal-link';
+                        span.appendChild(range.extractContents());
+                        range.insertNode(span);
+                        
+                        // Manually trigger input event to save changes
+                        editor.dispatchEvent(new Event('input', { bubbles: true }));
+
+                    } else {
+                        document.execCommand(command, false, null);
+                    }
+                }
+                else if (actionTarget) {
                     const action = actionTarget.dataset.action;
 
                     if (action === 'deleteComponent') {
                         showConfirm('Are you sure you want to delete this component and all its sub-components?', () => {
                             deleteComponent(activeComponentId);
                         });
-                    }
-                    if (action === 'uploadMap') {
+                    } else if (action === 'uploadMap') {
                         mapImageInput.click();
-                    }
-                    if(action === 'indent') {
+                    } else if(action === 'indent') {
                         indentComponent(activeComponentId);
-                    }
-                    if(action === 'outdent') {
+                    } else if(action === 'outdent') {
                         outdentComponent(activeComponentId);
                     }
                 } else {
@@ -897,6 +1046,41 @@
                         mainApp.classList.remove('gm-mode');
                         mainApp.classList.add('writer-mode');
                         renderAll();
+                    }
+                }
+            });
+
+            // --- RTF SHORTCUTS ---
+            mainContent.addEventListener('keydown', (e) => {
+                if (!e.ctrlKey || !e.target.isContentEditable) {
+                    return;
+                }
+
+                const key = e.key.toLowerCase();
+                if (['b', 'i', 'u', 'l'].includes(key)) {
+                    e.preventDefault();
+                    let command;
+                    switch (key) {
+                        case 'b': command = 'bold'; break;
+                        case 'i': command = 'italic'; break;
+                        case 'u': command = 'underline'; break;
+                        case 'l': command = 'createLink'; break;
+                    }
+
+                    if (command === 'createLink') {
+                        const selection = document.getSelection();
+                        if (!selection.rangeCount || selection.isCollapsed) return;
+                        
+                        const range = selection.getRangeAt(0);
+                        const span = document.createElement('span');
+                        span.className = 'internal-link';
+                        span.appendChild(range.extractContents());
+                        range.insertNode(span);
+
+                        // Manually trigger input event to save changes
+                        e.target.dispatchEvent(new Event('input', { bubbles: true }));
+                    } else {
+                        document.execCommand(command, false, null);
                     }
                 }
             });
@@ -930,7 +1114,7 @@
 
             tocFilterInput.addEventListener('input', renderTableOfContents);
 
-            // --- HIERARCHY AND DRAG/DROP LOGIC (REWRITTEN) ---
+            // --- HIERARCHY AND DRAG/DROP LOGIC ---
             const indentComponent = (id) => {
                 const info = findComponentAndParent(id);
                 if (!info || info.index === 0) return;
@@ -950,7 +1134,9 @@
                 if (!info || !info.parent) return;
 
                 const grandParentInfo = findComponentAndParent(info.parent.id);
-                if (!grandParentInfo) return; 
+                if (!grandParentInfo) {
+                    return;
+                }
 
                 saveStateToHistory();
                 const sourceArray = info.parent.children;
@@ -1113,15 +1299,16 @@
                     </ul>
                      <h3 class="text-xl font-bold text-white mb-2">Advanced Features</h3>
                      <ul class="list-disc list-inside space-y-2 mb-4">
+                        <li><b>Rich Text Editor:</b> Use the toolbar or keyboard shortcuts (Ctrl+B, Ctrl+I, Ctrl+U, Ctrl+L) for a word processor-like editing experience.</li>
                         <li><b>Tagging:</b> Every component has a "Tags" field. Add comma-separated keywords to make filtering more powerful.</li>
-                        <li><b>Wiki-Style Linking:</b> In any text field, wrap the exact name of another component in double square brackets (e.g., [[Ancient Crypt]]) to create a clickable link that will appear in GM View.</li>
+                        <li><b>Wiki-Style Linking:</b> Use the link button or Ctrl+L to create clickable links to other components in your project.</li>
                         <li><b>Selective Import:</b> When you load a project file, a new modal will appear, allowing you to choose exactly which components to import into your current project.</li>
                         <li><b>Undo:</b> Click the Undo button in the Table of Contents header to revert your last major action.</li>
                     </ul>
                     <h3 class="text-xl font-bold text-white mb-2">Running Your Game: The GM View</h3>
                      <ul class="list-disc list-inside space-y-2 mb-4">
-                        <li><b>Activate GM View:</b> Click the "GM View" button at the bottom of the Table of Contents. This hides the editing controls and the "Add Component" panel.</li>
-                        <li><b>Read-Only Mode:</b> All your notes are displayed in order, with your nested components indented for easy reading.</li>
+                        <li><b>Activate GM View:</b> Click the "GM View" button at the bottom of the Table of Contents. This hides the editing controls.</li>
+                        <li><b>Read-Only Mode:</b> All your notes are displayed in a clean, readable format.</li>
                         <li><b>Quick Reference Panel:</b> A new panel appears on the right with quick links to all your NPCs and Locations. Clicking a link scrolls the main view to that component.</li>
                         <li><b>Exit GM View:</b> To go back to editing, simply click the "Edit View" button.</li>
                     </ul>
