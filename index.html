@@ -1160,7 +1160,7 @@
 
                 let fieldsHTML = '';
                 for (const key in component.data) {
-                    if (key === 'imageUrl' || key === 'pins') continue;
+                    if (key === 'imageUrl' || key === 'pins' || key === nameKey) continue;
                     const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
                     const value = component.data[key] || '';
                     const isTextArea = ['summary', 'description', 'pitch', 'hook', 'stakes', 'resolution', 'motivation', 'appearance', 'secrets', 'goals', 'ideology', 'key_members', 'setup', 'properties', 'information', 'conclusion', 'plot_hooks', 'key_sights', 'sounds_and_smells', 'potential_encounters', 'history', 'mechanic', 'notes', 'content'].includes(key);
@@ -1257,7 +1257,12 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-8">
                         <div>
-                            <h2 class="text-3xl">${name}</h2>
+                            <div class="editable-content">
+                                <input type="text" data-key="${nameKey}" value="${name}" placeholder="Component Name" class="text-3xl w-full bg-transparent border-b-2 border-transparent focus:border-gray-600 outline-none pb-2 transition-colors">
+                            </div>
+                            <div class="viewable-content">
+                                <h2 class="text-3xl">${name}</h2>
+                            </div>
                             <div class="editable-control flex items-center gap-2 mt-2">
                                 <button data-action="outdent" title="Outdent Component" class="nest-control-button p-1 hover:bg-gray-700 rounded-md" ${!canOutdent ? 'disabled' : ''}>
                                     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -1543,8 +1548,6 @@
 
                         if(key === 'name' || key === 'title') {
                             renderTableOfContents();
-                            const cardHeader = mainContent.querySelector(`.component-card[data-id='${activeComponentId}'] h2`);
-                            if (cardHeader) cardHeader.textContent = value;
                         }
                     }
                 }
