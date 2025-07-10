@@ -478,11 +478,19 @@
         <aside id="toc-panel" class="panel">
             <div class="panel-header flex justify-between items-center">
                 <h2 class="text-xl">Table of Contents</h2>
-                <button id="undoButton" title="Undo Last Action" class="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-                    </svg>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="settingsButton" title="Settings" class="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.438 1.001s.145.761.438 1.001l1.003.827c.424.35.534.954.26 1.431l-1.296 2.247a1.125 1.125 0 01-1.37.49l-1.217-.456c-.355-.133-.75-.072-1.075.124a6.57 6.57 0 01-.22.127c-.332.183-.582.495-.645.87l-.213 1.281c-.09.543-.56.94-1.11.94h-2.593c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.063-.374-.313-.686-.645-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.37-.49l-1.296-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.437-1.001s-.145-.761-.437-1.001l-1.004-.827a1.125 1.125 0 01-.26-1.431l1.296-2.247a1.125 1.125 0 011.37-.49l1.217.456c.355.133.75.072 1.076-.124.072-.044.146-.087.22-.127.332-.183.582-.495.645-.87l.213-1.281z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                    <button id="undoButton" title="Undo Last Action" class="p-2 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="p-2 border-b border-gray-700">
                 <input type="text" id="toc-filter" placeholder="Filter components..." class="w-full bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-sm">
@@ -627,6 +635,43 @@
             </div>
         </div>
     </div>
+    
+    <!-- AI Modal -->
+    <div id="aiModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-8 max-w-lg w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white uppercase">AI Content Generator</h3>
+                <button id="aiModalCloseButton" class="text-gray-400 hover:text-white text-2xl p-1 rounded-full">&times;</button>
+            </div>
+            <div>
+                <textarea id="aiPrompt" class="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white" rows="4" placeholder="Enter your prompt... e.g., 'A gruff dwarf blacksmith with a secret soft spot for kittens.'"></textarea>
+                <button id="aiGenerateButton" class="w-full mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md text-white flex items-center justify-center">
+                    <span id="aiGenerateButtonText">Generate</span>
+                    <svg id="aiLoadingSpinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-8 max-w-lg w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white uppercase">Settings</h3>
+                <button id="settingsModalCloseButton" class="text-gray-400 hover:text-white text-2xl p-1 rounded-full">&times;</button>
+            </div>
+            <div>
+                <label for="geminiApiKeyInput" class="block text-sm font-medium text-gray-300 mb-2">Gemini API Key</label>
+                <input type="password" id="geminiApiKeyInput" class="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white" placeholder="Enter your Gemini API Key">
+                <p class="text-xs text-gray-400 mt-2">Your API key is stored only in your browser and is never sent to our servers.</p>
+                <button id="settingsSaveButton" class="w-full mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md text-white">Save</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Hidden file inputs -->
     <input type="file" id="loadFileInput" class="hidden" accept=".json">
@@ -645,6 +690,8 @@
             let loadedProjectData = null;
             let isPinning = false;
             let pinComponentId = null;
+            let activeEditorForAI = null;
+            let geminiApiKey = "";
 
 
             // --- DOM ELEMENTS ---
@@ -658,6 +705,7 @@
             const tocFilterInput = document.getElementById('toc-filter');
             const projectTitleDisplay = document.getElementById('project-title-display');
             const undoButton = document.getElementById('undoButton');
+            const settingsButton = document.getElementById('settingsButton');
             const confirmModal = document.getElementById('confirmModal');
             const confirmMessage = document.getElementById('confirmMessage');
             const confirmOkButton = document.getElementById('confirmOkButton');
@@ -684,6 +732,16 @@
             const modalAddComponentList = document.getElementById('modal-add-component-list');
             const addComponentModalCloseButton = document.getElementById('addComponentModalCloseButton');
             const backButton = document.getElementById('backButton');
+            const aiModal = document.getElementById('aiModal');
+            const aiModalCloseButton = document.getElementById('aiModalCloseButton');
+            const aiPrompt = document.getElementById('aiPrompt');
+            const aiGenerateButton = document.getElementById('aiGenerateButton');
+            const aiGenerateButtonText = document.getElementById('aiGenerateButtonText');
+            const aiLoadingSpinner = document.getElementById('aiLoadingSpinner');
+            const settingsModal = document.getElementById('settingsModal');
+            const settingsModalCloseButton = document.getElementById('settingsModalCloseButton');
+            const geminiApiKeyInput = document.getElementById('geminiApiKeyInput');
+            const settingsSaveButton = document.getElementById('settingsSaveButton');
 
             // --- HELPER FUNCTIONS ---
             const isMobile = () => window.innerWidth <= 1024;
@@ -760,6 +818,7 @@
 
             // --- INITIALIZATION ---
             function initializeApp() {
+                loadSettings();
                 resetProject();
                 renderAddComponentModal();
             }
@@ -786,6 +845,35 @@
             const closeAddComponentModal = () => {
                 addComponentModal.classList.add('hidden');
                 addComponentModal.classList.remove('flex');
+            };
+            
+            const openAiModal = (editorElement) => {
+                if (!geminiApiKey) {
+                    openSettingsModal();
+                    return;
+                }
+                activeEditorForAI = editorElement;
+                aiModal.classList.remove('hidden');
+                aiModal.classList.add('flex');
+                aiPrompt.focus();
+            };
+            
+            const closeAiModal = () => {
+                aiModal.classList.add('hidden');
+                aiModal.classList.remove('flex');
+                activeEditorForAI = null;
+                aiPrompt.value = '';
+            };
+            
+            const openSettingsModal = () => {
+                geminiApiKeyInput.value = geminiApiKey;
+                settingsModal.classList.remove('hidden');
+                settingsModal.classList.add('flex');
+            };
+
+            const closeSettingsModal = () => {
+                settingsModal.classList.add('hidden');
+                settingsModal.classList.remove('flex');
             };
 
             const openMapModal = (mapComponent) => {
@@ -854,6 +942,20 @@
 
             const updateUndoButtonState = () => {
                 if (undoButton) undoButton.disabled = historyStack.length === 0;
+            };
+
+            // --- SETTINGS & API KEY ---
+            const loadSettings = () => {
+                const savedKey = localStorage.getItem('geminiApiKey');
+                if (savedKey) {
+                    geminiApiKey = savedKey;
+                }
+            };
+
+            const saveSettings = () => {
+                geminiApiKey = geminiApiKeyInput.value;
+                localStorage.setItem('geminiApiKey', geminiApiKey);
+                closeSettingsModal();
             };
 
             // --- PROJECT & COMPONENT LOGIC ---
@@ -1061,7 +1163,7 @@
                     if (key === 'imageUrl' || key === 'pins') continue;
                     const label = key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ');
                     const value = component.data[key] || '';
-                    const isTextArea = ['summary', 'description', 'pitch', 'hook', 'stakes', 'resolution', 'motivation', 'atmosphere', 'secrets', 'goals', 'ideology', 'key_members', 'setup', 'properties', 'information', 'conclusion', 'plot_hooks', 'key_sights', 'sounds_and_smells', 'potential_encounters', 'history', 'mechanic', 'notes', 'content'].includes(key);
+                    const isTextArea = ['summary', 'description', 'pitch', 'hook', 'stakes', 'resolution', 'motivation', 'appearance', 'secrets', 'goals', 'ideology', 'key_members', 'setup', 'properties', 'information', 'conclusion', 'plot_hooks', 'key_sights', 'sounds_and_smells', 'potential_encounters', 'history', 'mechanic', 'notes', 'content'].includes(key);
                     
                     if (isTextArea) {
                         fieldsHTML += `
@@ -1075,6 +1177,7 @@
                                         <button data-command="createLink" title="Create Internal Link (Ctrl+L)">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pointer-events-none" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" /></svg>
                                         </button>
+                                        <button data-command="ai" title="Generate with AI">AI</button>
                                     </div>
                                     <div data-key="${key}" class="wysiwyg-editor" contenteditable="true">${value}</div>
                                 </div>
@@ -1265,6 +1368,7 @@
                 }
             });
             undoButton.addEventListener('click', undoLastAction);
+            settingsButton.addEventListener('click', openSettingsModal);
             
             mainPanelHeader.addEventListener('click', (e) => {
                 const actionTarget = e.target.closest('[data-header-action]');
@@ -1506,6 +1610,12 @@
                 if (commandTarget) {
                     const command = commandTarget.dataset.command;
                     const editor = commandTarget.closest('.editable-content').querySelector('.wysiwyg-editor');
+                    
+                    if (command === 'ai') {
+                        openAiModal(editor);
+                        return;
+                    }
+                    
                     editor.focus();
                     
                     if (command === 'createLink') {
@@ -1821,6 +1931,11 @@
             // --- MODAL CLOSE LISTENERS ---
             addComponentModalCloseButton.addEventListener('click', closeAddComponentModal);
             addComponentModal.addEventListener('click', (e) => { if (e.target === addComponentModal) closeAddComponentModal(); });
+            aiModalCloseButton.addEventListener('click', closeAiModal);
+            aiModal.addEventListener('click', (e) => { if (e.target === aiModal) closeAiModal(); });
+            settingsModalCloseButton.addEventListener('click', closeSettingsModal);
+            settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) closeSettingsModal(); });
+            settingsSaveButton.addEventListener('click', saveSettings);
             helpCloseButton.addEventListener('click', closeHelpModal);
             helpModal.addEventListener('click', (e) => { if(e.target === helpModal) closeHelpModal(); });
             importModal.addEventListener('click', (e) => { if(e.target === importModal) importCancelButton.click(); });
@@ -1853,6 +1968,55 @@
                 window.print();
                 document.body.removeChild(printArea);
             });
+            
+            aiGenerateButton.addEventListener('click', async () => {
+                const prompt = aiPrompt.value;
+                if (!prompt || !activeEditorForAI) return;
+                
+                if (!geminiApiKey) {
+                    openSettingsModal();
+                    return;
+                }
+
+                aiGenerateButtonText.classList.add('hidden');
+                aiLoadingSpinner.classList.remove('hidden');
+                aiGenerateButton.disabled = true;
+
+                try {
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
+                    
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        activeEditorForAI.innerHTML = text;
+                        // Dispatch an input event to ensure the change is saved
+                        activeEditorForAI.dispatchEvent(new Event('input', { bubbles: true }));
+                        closeAiModal();
+                    } else {
+                        console.error("AI response format was unexpected:", result);
+                        alert("Could not get a valid response from the AI. Check your API key and prompt.");
+                    }
+                } catch (error) {
+                    console.error("Error calling AI:", error);
+                    alert("An error occurred while generating content.");
+                } finally {
+                    aiGenerateButtonText.classList.remove('hidden');
+                    aiLoadingSpinner.classList.add('hidden');
+                    aiGenerateButton.disabled = false;
+                }
+            });
 
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
@@ -1862,6 +2026,8 @@
                     if (!mapModal.classList.contains('hidden')) closeMapModal();
                     if (!handoutModal.classList.contains('hidden')) closeHandoutModal();
                     if (!addComponentModal.classList.contains('hidden')) closeAddComponentModal();
+                    if (!aiModal.classList.contains('hidden')) closeAiModal();
+                    if (!settingsModal.classList.contains('hidden')) closeSettingsModal();
                      if (isPinning) {
                         isPinning = false;
                         pinComponentId = null;
