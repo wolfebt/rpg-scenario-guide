@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG Scenario Guide - Book Layout</title>
+    <title>RPG Scenario Guide</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,19 +45,15 @@
         /* Main Layout */
         #app-container {
             display: grid;
-            grid-template-columns: 300px 1fr 200px;
+            grid-template-columns: 300px 1fr;
             height: 100vh;
             gap: 1.5rem;
             padding: 1.5rem;
             transition: grid-template-columns 0.3s ease;
         }
         #app-container.gm-mode {
-            grid-template-columns: 300px 1fr 0;
+            grid-template-columns: 300px 1fr;
         }
-        #app-container.gm-mode #add-panel {
-            display: none;
-        }
-
 
         /* Panels */
         .panel {
@@ -142,14 +138,15 @@
         }
 
 
-        /* Add Component Panel */
+        /* Add Component Button */
         .add-component-btn {
             display: block;
             width: 100%;
-            text-align: left;
+            text-align: center;
             padding: 0.75rem 1rem;
             border-radius: 0.375rem;
             transition: background-color 0.2s;
+            border: 1px solid var(--border-color);
         }
         .add-component-btn:hover {
             background-color: var(--hover-bg);
@@ -364,11 +361,35 @@
         @media (max-width: 1024px) {
             #app-container {
                 grid-template-columns: 1fr;
-                padding: 1rem;
-                gap: 1rem;
+                padding: 0;
+                gap: 0;
+                overflow-x: hidden;
             }
-            #toc-panel, #add-panel, #quick-ref-panel {
-                display: none; /* Hide side panels on smaller screens */
+            #toc-panel, #main-panel {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                transition: transform 0.3s ease-in-out;
+                border-radius: 0;
+                border: none;
+            }
+            #toc-panel {
+                transform: translateX(0);
+                z-index: 20;
+            }
+            #main-panel {
+                transform: translateX(100%);
+                z-index: 10;
+            }
+            #app-container.mobile-view-main #toc-panel {
+                transform: translateX(-100%);
+            }
+            #app-container.mobile-view-main #main-panel {
+                transform: translateX(0);
+            }
+            #main-panel .panel-content {
+                padding: 1.5rem;
             }
         }
 
@@ -469,8 +490,9 @@
             <div id="toc-list" class="panel-content space-y-1">
                 <!-- Table of Contents items will be dynamically inserted here -->
             </div>
-            <div class="panel-footer">
+            <div class="panel-footer flex gap-2">
                 <button id="gmViewButton" class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-white">GM View</button>
+                <button id="addComponentButton" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md text-white">Add Component</button>
             </div>
         </aside>
 
@@ -478,6 +500,9 @@
         <main id="main-panel" class="panel">
              <div id="main-panel-header" class="panel-header grid grid-cols-3 items-center gap-4">
                  <div class="flex items-center gap-4"> <!-- Left column -->
+                     <button id="backButton" data-header-action="back" title="Back to Contents" class="p-2 rounded-md hover:bg-gray-700 hidden">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                    </button>
                      <h1 id="project-title-display" class="text-2xl truncate">New Project</h1>
                      <div class="flex items-center gap-2 writer-mode-only">
                          <button data-header-action="save" title="Save Project" class="p-2 rounded-md hover:bg-gray-700">
@@ -511,16 +536,6 @@
                 <div class="creator-tag">RPG SCENARIO GUIDE by Wolfe.BT@TangentLLC</div>
             </div>
         </main>
-
-        <!-- Right Panel: Add Components -->
-        <aside id="add-panel" class="panel">
-            <div class="panel-header">
-                <h2 class="text-xl">Component</h2>
-            </div>
-            <div id="add-component-list" class="panel-content">
-                <!-- Component buttons will be dynamically inserted here -->
-            </div>
-        </aside>
     </div>
     
     <!-- GM View Quick Reference Panel -->
@@ -530,12 +545,6 @@
         </div>
         <div id="quick-ref-list" class="panel-content"></div>
     </aside>
-
-    <!-- Mobile view message -->
-    <div id="mobileMessage" class="hidden lg:hidden flex-col items-center justify-center h-screen text-center p-4 bg-gray-900 text-gray-300">
-        <h2 class="text-2xl font-bold mb-2 font-serif">RPG Scenario Guide</h2>
-        <p>This application is designed for a larger screen. Please use a desktop or tablet for the best experience.</p>
-    </div>
     
     <!-- Confirmation Modal -->
     <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
@@ -605,6 +614,19 @@
             </div>
         </div>
     </div>
+    
+    <!-- Add Component Modal -->
+    <div id="addComponentModal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-xl shadow-2xl p-8 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white uppercase">Add a New Component</h3>
+                <button id="addComponentModalCloseButton" class="text-gray-400 hover:text-white text-2xl p-1 rounded-full">&times;</button>
+            </div>
+            <div id="modal-add-component-list" class="grid grid-cols-2 gap-4">
+                <!-- Component buttons will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
 
     <!-- Hidden file inputs -->
     <input type="file" id="loadFileInput" class="hidden" accept=".json">
@@ -627,13 +649,11 @@
 
             // --- DOM ELEMENTS ---
             const mainApp = document.getElementById('app-container');
-            const mobileMessage = document.getElementById('mobileMessage');
             const mainContent = document.getElementById('mainContent');
             const projectHeader = document.getElementById('projectHeader');
             const mainPanelHeader = document.getElementById('main-panel-header');
             const loadFileInput = document.getElementById('loadFileInput');
             const componentImageInput = document.getElementById('componentImageInput');
-            const addComponentList = document.getElementById('add-component-list');
             const tocList = document.getElementById('toc-list');
             const tocFilterInput = document.getElementById('toc-filter');
             const projectTitleDisplay = document.getElementById('project-title-display');
@@ -659,8 +679,27 @@
             const handoutModalContent = document.getElementById('handoutModalContent');
             const handoutPrintButton = document.getElementById('handoutPrintButton');
             const handoutCloseButton = document.getElementById('handoutCloseButton');
+            const addComponentModal = document.getElementById('addComponentModal');
+            const addComponentButton = document.getElementById('addComponentButton');
+            const modalAddComponentList = document.getElementById('modal-add-component-list');
+            const addComponentModalCloseButton = document.getElementById('addComponentModalCloseButton');
+            const backButton = document.getElementById('backButton');
 
             // --- HELPER FUNCTIONS ---
+            const isMobile = () => window.innerWidth <= 1024;
+
+            const showMainView = () => {
+                if (!isMobile()) return;
+                mainApp.classList.add('mobile-view-main');
+                backButton.classList.remove('hidden');
+            };
+
+            const showTocView = () => {
+                if (!isMobile()) return;
+                mainApp.classList.remove('mobile-view-main');
+                backButton.classList.add('hidden');
+            };
+            
             const findComponentAndParent = (id, components = project.components, parent = null) => {
                 for (let i = 0; i < components.length; i++) {
                     const component = components[i];
@@ -721,14 +760,8 @@
 
             // --- INITIALIZATION ---
             function initializeApp() {
-                if (window.innerWidth < 1024) {
-                    mainApp.style.display = 'none';
-                    mobileMessage.style.display = 'flex';
-                } else {
-                    mainApp.style.display = 'grid';
-                    mobileMessage.style.display = 'none';
-                    resetProject();
-                }
+                resetProject();
+                renderAddComponentModal();
             }
 
             // --- MODAL & HISTORY MANAGEMENT ---
@@ -748,6 +781,11 @@
             const closeHelpModal = () => {
                 helpModal.classList.add('hidden');
                 helpModal.classList.remove('flex');
+            };
+            
+            const closeAddComponentModal = () => {
+                addComponentModal.classList.add('hidden');
+                addComponentModal.classList.remove('flex');
             };
 
             const openMapModal = (mapComponent) => {
@@ -901,7 +939,6 @@
                 updateUndoButtonState();
                 renderProjectHeader();
                 renderTableOfContents();
-                renderAddComponentSidebar();
                 renderActiveComponent();
                 gmViewButton.textContent = isFullViewActive ? 'Edit View' : 'GM View';
                 mainApp.classList.toggle('gm-mode', isFullViewActive);
@@ -991,9 +1028,9 @@
                 renderItems(componentsToRender);
             };
 
-            const renderAddComponentSidebar = () => {
+            const renderAddComponentModal = () => {
                 const componentTypes = ['Story Arc', 'Adventure', 'NPC', 'Location', 'Faction', 'Encounter', 'Item', 'Clue', 'Map', 'Handout'];
-                addComponentList.innerHTML = componentTypes.map(type => `
+                modalAddComponentList.innerHTML = componentTypes.map(type => `
                     <button class="add-component-btn" data-type="${type}">${type}</button>
                 `).join('');
             };
@@ -1221,12 +1258,18 @@
             };
 
             // --- EVENT LISTENERS ---
-            window.addEventListener('resize', initializeApp);
+            window.addEventListener('resize', () => {
+                if (!isMobile()) {
+                    mainApp.classList.remove('mobile-view-main');
+                    backButton.classList.add('hidden');
+                }
+            });
             undoButton.addEventListener('click', undoLastAction);
             
             mainPanelHeader.addEventListener('click', (e) => {
-                const action = e.target.closest('[data-header-action]')?.dataset.headerAction;
-                if (!action) return;
+                const actionTarget = e.target.closest('[data-header-action]');
+                if (!actionTarget) return;
+                const action = actionTarget.dataset.headerAction;
 
                 if (action === 'save') {
                     const dataStr = JSON.stringify(project, null, 2);
@@ -1248,6 +1291,8 @@
                     document.body.removeChild(printArea);
                 } else if (action === 'help') {
                     openHelpModal();
+                } else if (action === 'back') {
+                    showTocView();
                 }
             });
 
@@ -1334,9 +1379,15 @@
                 e.target.value = '';
             });
 
-            addComponentList.addEventListener('click', (e) => {
+            addComponentButton.addEventListener('click', () => {
+                addComponentModal.classList.remove('hidden');
+                addComponentModal.classList.add('flex');
+            });
+
+            modalAddComponentList.addEventListener('click', (e) => {
                 if (e.target.matches('.add-component-btn')) {
                     addComponent(e.target.dataset.type);
+                    closeAddComponentModal();
                 }
             });
 
@@ -1348,6 +1399,7 @@
                     mainApp.classList.remove('gm-mode');
                     mainApp.classList.add('writer-mode');
                     renderAll();
+                    showMainView();
                 }
             });
             
@@ -1363,6 +1415,9 @@
                     mainApp.classList.add('writer-mode');
                 }
                 renderAll();
+                if (isFullViewActive) {
+                    showMainView();
+                }
             });
             
             confirmOkButton.addEventListener('click', () => {
@@ -1526,6 +1581,7 @@
                             mainApp.classList.remove('gm-mode');
                             mainApp.classList.add('writer-mode');
                             renderAll();
+                            showMainView();
                         }
                     }
                 }
@@ -1762,11 +1818,13 @@
                 renderAll();
             });
 
+            // --- MODAL CLOSE LISTENERS ---
+            addComponentModalCloseButton.addEventListener('click', closeAddComponentModal);
+            addComponentModal.addEventListener('click', (e) => { if (e.target === addComponentModal) closeAddComponentModal(); });
             helpCloseButton.addEventListener('click', closeHelpModal);
             helpModal.addEventListener('click', (e) => { if(e.target === helpModal) closeHelpModal(); });
             importModal.addEventListener('click', (e) => { if(e.target === importModal) importCancelButton.click(); });
             confirmModal.addEventListener('click', (e) => { if(e.target === confirmModal) closeConfirm(); });
-
             mapModalCloseButton.addEventListener('click', closeMapModal);
             mapModal.addEventListener('click', (e) => {
                 if (e.target === mapModal) {
@@ -1782,9 +1840,9 @@
                     mainApp.classList.add('writer-mode');
                     closeMapModal();
                     renderAll();
+                    showMainView();
                 }
             });
-
             handoutCloseButton.addEventListener('click', closeHandoutModal);
             handoutPrintButton.addEventListener('click', () => {
                 const printContent = handoutModalContent.innerHTML;
@@ -1802,7 +1860,8 @@
                     if (!importModal.classList.contains('hidden')) importCancelButton.click();
                     if (!confirmModal.classList.contains('hidden')) closeConfirm();
                     if (!mapModal.classList.contains('hidden')) closeMapModal();
-                     if (!handoutModal.classList.contains('hidden')) closeHandoutModal();
+                    if (!handoutModal.classList.contains('hidden')) closeHandoutModal();
+                    if (!addComponentModal.classList.contains('hidden')) closeAddComponentModal();
                      if (isPinning) {
                         isPinning = false;
                         pinComponentId = null;
